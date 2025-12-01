@@ -18,11 +18,11 @@ constexpr std::string kName           = "L4S3R";
 unsigned              viewport_width  = 600;
 unsigned              viewport_height = 900;
 
-GLFWwindow           *window;
+GLFWwindow *window;
 
-Level                 current_level;
+Level current_level;
 
-int                   main()
+int main()
 {
     bool success = Initialise(kName, viewport_width, viewport_height);
     if (!success)
