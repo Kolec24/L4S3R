@@ -2,9 +2,7 @@
 #define _LEVEL_H_
 
 #include "board.h"
-#include "laser.h"
-
-#include <vector>
+#include "laser_controller.h"
 
 class Level
 {
@@ -19,16 +17,8 @@ class Level
     void OnRightClicked(float x, float y);
 
   private:
-    void InitialiseLasers();
-    void AddLaserSource(const Direction &location, const int &index,
-                        const sorg::Colour &colour);
-    void RefreshLaserSources();
-
-  private:
-    Board              board_;
-    std::vector<Laser> lasers_;
-
-    unsigned laser_source_shader_ = 0;
+    Board           board_;
+    LaserController laser_controller_;
 };
 
 #endif

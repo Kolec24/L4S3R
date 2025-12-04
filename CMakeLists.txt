@@ -15,8 +15,8 @@ add_executable(l4s3r
     src/level.cpp
     src/board.h
     src/board.cpp
-    src/laser.h
-    src/laser.cpp)
+    src/laser_controller.h
+    src/laser_controller.cpp)
 
 target_include_directories(l4s3r PUBLIC libs)
 target_link_libraries(l4s3r iorg sorg glfw glad)

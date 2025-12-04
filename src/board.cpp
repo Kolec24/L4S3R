@@ -66,7 +66,7 @@ void Board::Refresh()
         {
             vertices.push_back(horizontal_measurement);
             vertices.push_back(-1 * vertical_measurement);
-            vertices.push_back(0.0f);
+            vertices.push_back(kDepth);
             horizontal_measurement += 1 / horizontal_spacing;
         }
 

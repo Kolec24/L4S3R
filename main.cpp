@@ -75,6 +75,8 @@ bool Initialise(const std::string &name, const int width, const int height)
         return false;
     }
 
+    glEnable(GL_DEPTH_TEST);
+
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
 

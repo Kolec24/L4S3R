@@ -304,7 +304,7 @@ void sorg::SetUniform(GLuint program, const GLchar *name, float value)
 void sorg::Draw(float current_time)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (auto const &[shader, data] : shaders)
     {

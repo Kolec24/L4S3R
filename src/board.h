@@ -23,7 +23,8 @@ class Board
     void RemoveMirror(float x, float y);
 
   private:
-    unsigned shader_ = 0;
+    unsigned    shader_ = 0;
+    const float kDepth  = -0.5f;
 
     const int kWidth  = 5;
     const int kHeight = 5;
