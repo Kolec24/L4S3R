@@ -35,6 +35,8 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        current_level.Update(glfwGetTime());
+
         sorg::Draw(glfwGetTime());
 
         glfwSwapBuffers(window);
@@ -80,10 +82,6 @@ bool Initialise(const std::string &name, const int width, const int height)
 
     glfwSetKeyCallback(window, KeyCallback);
     glfwSetMouseButtonCallback(window, MouseButtonCallback);
-
-    sorg::SetupBasicShader("shaders/basic.vs", "shaders/basic.fs");
-    sorg::SetupComplexShader("shaders/complex.vs", "shaders/complex.fs");
-    sorg::InitialiseObjects();
 
     return true;
 }

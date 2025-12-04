@@ -5,68 +5,16 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <unordered_map>
 #include <map>
 #include <vector>
 
-std::map<unsigned, sorg::ShaderObjects> shaders;
-std::vector<unsigned>                   vertex_array_objects;
+std::map<GLuint, sorg::ShaderData> shaders;
+std::vector<GLuint>                vertex_array_objects;
+std::unordered_map<GLuint, std::vector<sorg::AttributeData>> vao_attributes;
 
-// TODO: Fix these objects.
-unsigned basic_lines_vao = 0;
-unsigned basic_lines_vbo = 0;
-unsigned basic_lines_ebo = 0;
-GLuint   basic_shader;
-unsigned lines_counter = 0;
-
-unsigned complex_triangles_vao = 0;
-unsigned complex_triangles_vbo = 0;
-unsigned complex_triangles_ebo = 0;
-GLuint   complex_shader;
-unsigned complex_triangles_counter = 0;
-
-void sorg::InitialiseObjects()
-{
-    // Basic lines.
-    glGenBuffers(1, &basic_lines_vbo);
-    glGenVertexArrays(1, &basic_lines_vao);
-    glGenBuffers(1, &basic_lines_ebo);
-
-    glBindVertexArray(basic_lines_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, basic_lines_vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basic_lines_ebo);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float),
-                          (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
-
-    // Complex triangles.
-    glGenBuffers(1, &complex_triangles_vbo);
-    glGenVertexArrays(1, &complex_triangles_vao);
-    glGenBuffers(1, &complex_triangles_ebo);
-
-    glBindVertexArray(complex_triangles_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, complex_triangles_vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, complex_triangles_ebo);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float),
-                          (void *)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float),
-                          (void *)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float),
-                          (void *)(5 * sizeof(float)));
-    glEnableVertexAttribArray(2);
-
-    glBindVertexArray(0);
-}
-
-GLuint sorg::SetupShaderProgram(const char *vertexPath,
-                                const char *fragmentPath)
+GLuint sorg::SetupShaderProgram(const GLchar *vertexPath,
+                                const GLchar *fragmentPath)
 {
     std::string vertexCode;
     std::string fragmentCode;
@@ -78,18 +26,133 @@ GLuint sorg::SetupShaderProgram(const char *vertexPath,
     CreateAndCompileShaders(vertexCode.c_str(), fragmentCode.c_str(),
                             vertexShader, fragmentShader);
 
-    // Create program.
     GLuint id = glCreateProgram();
-
     AttachAndLinkShaders(id, vertexShader, fragmentShader);
 
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
+    SetupShaderObjects(id);
+
     return id;
 }
 
-void sorg::ReadShaderFiles(const char *vertexPath, const char *fragmentPath,
+void sorg::SetupShaderObjects(GLuint program)
+{
+    // Gather attribute information.
+    GLint attribute_count;
+    glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &attribute_count);
+
+    std::vector<AttributeData> attributes(attribute_count);
+    for (auto i = 0; i < attribute_count; ++i)
+    {
+        GLchar name[256];
+        GLenum type;
+        GLint  size;
+        GLint  location;
+        GLint  component_count;
+
+        glGetActiveAttrib(program, i, sizeof(name), NULL, &size, &type, name);
+        switch (type)
+        {
+        case GL_FLOAT:
+            component_count = 1;
+            break;
+        case GL_FLOAT_VEC2:
+            component_count = 2;
+            break;
+        case GL_FLOAT_VEC3:
+            component_count = 3;
+            break;
+        case GL_FLOAT_VEC4:
+            component_count = 4;
+            break;
+        default:
+            component_count = 0;
+            break;
+        }
+
+        location = glGetAttribLocation(program, name);
+
+        AttributeData attribute;
+        attribute.name            = name;
+        attribute.type            = type;
+        attribute.size            = size;
+        attribute.location        = location;
+        attribute.component_count = component_count;
+
+        if (location >= attributes.size())
+        {
+            std::cout << "[SORG] Warning: SetupShaderObjects: Attribute layout "
+                         "is bigger than number of attributes!\n"
+                      << "SORG supports attributes that are numbered "
+                         "consecutively from 0."
+                      << std::endl;
+            return;
+        }
+
+        attributes[location] = attribute;
+    }
+
+    // Compute stride and offset.
+    GLint stride = 0;
+    for (auto &attribute : attributes)
+    {
+        attribute.offset = stride;
+        stride += attribute.component_count;
+    }
+
+    GLuint VAO;
+    bool   found_vao = false;
+    for (const auto &vao : vertex_array_objects)
+    {
+        // TODO: Decide what to do about this.
+
+        // if (vao_attributes.count(vao) != 0 && vao_attributes[vao] ==
+        // attributes)
+        // {
+        //     VAO       = vao;
+        //     found_vao = true;
+        // }
+    }
+
+    if (!found_vao)
+    {
+        glGenVertexArrays(1, &VAO);
+        vertex_array_objects.push_back(VAO);
+        vao_attributes.insert({VAO, attributes});
+    }
+
+    // Setup a new VBO and EBO for this shader.
+    GLuint VBO;
+    GLuint EBO;
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    if (!found_vao)
+    {
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+
+        for (const auto &attribute : attributes)
+        {
+            glVertexAttribPointer(attribute.location, attribute.component_count,
+                                  GL_FLOAT, GL_FALSE, stride * sizeof(float),
+                                  (void *)(attribute.offset * sizeof(float)));
+            glEnableVertexAttribArray(attribute.location);
+        }
+    }
+
+    ShaderData shader_data;
+    shader_data.vertex_array_object   = VAO;
+    shader_data.vertex_buffer_object  = VBO;
+    shader_data.element_buffer_object = EBO;
+
+    shaders.insert({program, shader_data});
+}
+
+void sorg::ReadShaderFiles(const GLchar *vertexPath, const GLchar *fragmentPath,
                            std::string &vertexCode, std::string &fragmentCode)
 {
     // Read shader files.
@@ -123,13 +186,13 @@ void sorg::ReadShaderFiles(const char *vertexPath, const char *fragmentPath,
     }
 }
 
-void sorg::CreateAndCompileShaders(const char *vertexCode,
-                                   const char *fragmentCode,
+void sorg::CreateAndCompileShaders(const GLchar *vertexCode,
+                                   const GLchar *fragmentCode,
                                    GLuint &vertexShader, GLuint &fragmentShader)
 {
     // Compile shaders.
-    int  success;
-    char infoLog[512];
+    int    success;
+    GLchar infoLog[512];
 
     vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexCode, NULL);
@@ -160,8 +223,8 @@ void sorg::AttachAndLinkShaders(const GLuint &program,
                                 const GLuint &vertexShader,
                                 const GLuint &fragmentShader)
 {
-    int  success;
-    char infoLog[512];
+    int    success;
+    GLchar infoLog[512];
 
     glAttachShader(program, vertexShader);
     glAttachShader(program, fragmentShader);
@@ -176,51 +239,66 @@ void sorg::AttachAndLinkShaders(const GLuint &program,
     }
 }
 
-void sorg::SetupBasicShader(const char *vertexPath, const char *fragmentPath)
-{
-    basic_shader = SetupShaderProgram(vertexPath, fragmentPath);
-}
-
-void sorg::SetupComplexShader(const char *vertexPath, const char *fragmentPath)
-{
-    complex_shader = SetupShaderProgram(vertexPath, fragmentPath);
-}
-
-void sorg::SetupLines(std::span<const float>        vertices,
+void sorg::SetupLines(GLuint program, std::span<const float> vertices,
                       std::span<const unsigned int> indices, unsigned counter)
 {
-    lines_counter = counter;
+    if (shaders.count(program) == 0)
+    {
+        std::cout << "[SORG] Error: SetupLines: Invalid program ID!"
+                  << std::endl;
+        return;
+    }
 
-    glBindVertexArray(basic_lines_vao);
+    auto &shader_data     = shaders[program];
+    shader_data.counter   = counter;
+    shader_data.primitive = GL_LINES;
 
-    glBindBuffer(GL_ARRAY_BUFFER, basic_lines_vbo);
+    glBindVertexArray(shader_data.vertex_array_object);
+
+    glBindBuffer(GL_ARRAY_BUFFER, shader_data.vertex_buffer_object);
     glBufferData(GL_ARRAY_BUFFER, vertices.size_bytes(), vertices.data(),
                  GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, basic_lines_ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader_data.element_buffer_object);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(),
                  GL_STATIC_DRAW);
 
     glBindVertexArray(0);
 }
 
-void sorg::SetupTriangles(std::span<const float>        vertices,
+void sorg::SetupTriangles(GLuint program, std::span<const float> vertices,
                           std::span<const unsigned int> indices,
                           unsigned                      counter)
 {
-    complex_triangles_counter = counter;
+    if (shaders.count(program) == 0)
+    {
+        std::cout << "[SORG] Error: SetupTriangles: Invalid program ID!"
+                  << std::endl;
+        return;
+    }
 
-    glBindVertexArray(complex_triangles_vao);
+    auto &shader_data = shaders[program];
 
-    glBindBuffer(GL_ARRAY_BUFFER, complex_triangles_vbo);
+    shader_data.counter   = counter;
+    shader_data.primitive = GL_TRIANGLES;
+
+    glBindVertexArray(shader_data.vertex_array_object);
+
+    glBindBuffer(GL_ARRAY_BUFFER, shader_data.vertex_buffer_object);
     glBufferData(GL_ARRAY_BUFFER, vertices.size_bytes(), vertices.data(),
                  GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, complex_triangles_ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, shader_data.element_buffer_object);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size_bytes(), indices.data(),
                  GL_STATIC_DRAW);
 
     glBindVertexArray(0);
+}
+
+void sorg::SetUniform(GLuint program, const GLchar *name, float value)
+{
+    glUseProgram(program);
+    glUniform1f(glGetUniformLocation(program, name), value);
 }
 
 void sorg::Draw(float current_time)
@@ -228,16 +306,11 @@ void sorg::Draw(float current_time)
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(complex_shader);
-    glUniform1f(glGetUniformLocation(complex_shader, "uTime"), current_time);
-    // complex_shader.use();
-    // complex_shader.SetFloat("uTime", current_time);
+    for (auto const &[shader, data] : shaders)
+    {
+        glUseProgram(shader);
 
-    glBindVertexArray(complex_triangles_vao);
-    glDrawElements(GL_TRIANGLES, complex_triangles_counter, GL_UNSIGNED_INT, 0);
-
-    glUseProgram(basic_shader);
-    // basic_shader.use();
-    glBindVertexArray(basic_lines_vao);
-    glDrawElements(GL_LINES, lines_counter, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(data.vertex_array_object);
+        glDrawElements(data.primitive, data.counter, GL_UNSIGNED_INT, 0);
+    }
 }

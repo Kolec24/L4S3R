@@ -2,8 +2,16 @@
 
 void Level::Initialise()
 {
+    laser_source_shader_ =
+        sorg::SetupShaderProgram("shaders/complex.vs", "shaders/complex.fs");
+
     board_.Initialise();
     InitialiseLasers();
+}
+
+void Level::Update(float current_time)
+{
+    sorg::SetUniform(laser_source_shader_, "uTime", current_time);
 }
 
 void Level::Refresh()
@@ -132,5 +140,6 @@ void Level::RefreshLaserSources()
         }
     }
 
-    sorg::SetupTriangles(laser_vertices, laser_indices, laser_indices.size());
+    sorg::SetupTriangles(laser_source_shader_, laser_vertices, laser_indices,
+                         laser_indices.size());
 }

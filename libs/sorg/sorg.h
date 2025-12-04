@@ -9,20 +9,30 @@
 namespace sorg
 {
 
-struct AttributeInfo
+struct AttributeData
 {
     std::string name;
     GLenum      type;
     GLint       location;
     GLint       size;
-    GLint       componentCount;
+    GLint       component_count;
+    GLint       offset;
+
+    bool operator==(const AttributeData &rhs)
+    {
+        return name == rhs.name && type == rhs.type &&
+               location == rhs.location && offset == rhs.offset;
+    }
 };
 
-struct ShaderObjects
+struct ShaderData
 {
-    unsigned vertex_array_object;
-    unsigned vertex_buffer_object;
-    unsigned element_buffer_object;
+    GLuint vertex_array_object;
+    GLuint vertex_buffer_object;
+    GLuint element_buffer_object;
+
+    GLenum primitive;
+    GLint  counter;
 };
 
 struct Colour
@@ -33,8 +43,8 @@ struct Colour
     float a = 1.0f;
 };
 
-void   InitialiseObjects();
 GLuint SetupShaderProgram(const char *vertexPath, const char *fragmentPath);
+void   SetupShaderObjects(GLuint program);
 void   ReadShaderFiles(const char *vertexPath, const char *fragmentPath,
                        std::string &vertexCode, std::string &fragmentCode);
 void   CreateAndCompileShaders(const char *vertexCode, const char *fragmentCode,
@@ -42,12 +52,11 @@ void   CreateAndCompileShaders(const char *vertexCode, const char *fragmentCode,
 void   AttachAndLinkShaders(const GLuint &program, const GLuint &vertexShader,
                             const GLuint &fragmentShader);
 
-void SetupBasicShader(const char *vertexPath, const char *fragmentPath);
-void SetupComplexShader(const char *vertexPath, const char *fragmentPath);
-void SetupLines(std::span<const float>        vertices,
+void SetupLines(GLuint program, std::span<const float> vertices,
                 std::span<const unsigned int> indices, unsigned counter);
-void SetupTriangles(std::span<const float>        vertices,
+void SetupTriangles(GLuint program, std::span<const float> vertices,
                     std::span<const unsigned int> indices, unsigned counter);
+void SetUniform(GLuint program, const char *name, float value);
 
 void Draw(float current_time);
 } // namespace sorg

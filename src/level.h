@@ -10,6 +10,7 @@ class Level
 {
   public:
     void Initialise();
+    void Update(float current_time);
     void Refresh();
     void SetViewportDimensions(float viewport_width, float vieport_height,
                                bool refresh);
@@ -26,6 +27,8 @@ class Level
   private:
     Board              board_;
     std::vector<Laser> lasers_;
+
+    unsigned laser_source_shader_ = 0;
 };
 
 #endif

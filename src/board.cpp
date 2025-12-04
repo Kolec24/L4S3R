@@ -5,6 +5,7 @@
 
 void Board::Initialise()
 {
+    shader_ = sorg::SetupShaderProgram("shaders/basic.vs", "shaders/basic.fs");
     for (int i = 0; i < kWidth; ++i)
     {
         std::vector<int> row;
@@ -33,16 +34,16 @@ void Board::Refresh()
     float height_spacing = static_cast<float>(viewport_height_) /
                            (kHeight + 2 * kVerticalHalfOffset);
 
-    cell_size_               = std::min(width_spacing, height_spacing);
+    cell_size_ = std::min(width_spacing, height_spacing);
 
     float horizontal_spacing = viewport_width_ / (2 * cell_size_);
     float vertical_spacing   = viewport_height_ / (2 * cell_size_);
 
-    float horizontal_skips   = horizontal_spacing - 0.5f * kWidth;
-    float vertical_skips     = vertical_spacing - 0.5f * kHeight;
+    float horizontal_skips = horizontal_spacing - 0.5f * kWidth;
+    float vertical_skips   = vertical_spacing - 0.5f * kHeight;
 
-    horizontal_increment_    = 1 / horizontal_spacing;
-    vertical_increment_      = 1 / vertical_spacing;
+    horizontal_increment_ = 1 / horizontal_spacing;
+    vertical_increment_   = 1 / vertical_spacing;
 
     float initial_vertical_measurement =
         -1 + vertical_skips * vertical_increment_;
@@ -105,7 +106,7 @@ void Board::Refresh()
         }
     }
 
-    sorg::SetupLines(vertices, indices, indices.size());
+    sorg::SetupLines(shader_, vertices, indices, indices.size());
 }
 
 int Board::GetWidth() const
