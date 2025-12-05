@@ -1,5 +1,7 @@
 #include "level.h"
 
+#include <iostream>
+
 void Level::Initialise()
 {
     board_.Initialise();
@@ -34,6 +36,7 @@ void Level::OnLeftClicked(float x, float y)
     if (board_changed)
     {
         laser_controller_.OnBoardLogicChanged();
+        CheckFinishCondition();
     }
 }
 
@@ -43,5 +46,19 @@ void Level::OnRightClicked(float x, float y)
     if (board_changed)
     {
         laser_controller_.OnBoardLogicChanged();
+        CheckFinishCondition();
     }
+}
+
+void Level::CheckFinishCondition()
+{
+    if (laser_controller_.AreAllTargetsHit())
+    {
+        OnLevelFinished();
+    }
+}
+
+void Level::OnLevelFinished()
+{
+    std::cout << "WIN!" << std::endl;
 }

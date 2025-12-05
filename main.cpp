@@ -7,6 +7,8 @@
 #include "sorg/sorg.h"
 #include "src/level.h"
 
+// TODO: UNDERSTAND THE X SHADER! target_nohit.fs
+
 bool Initialise(const std::string &name, const int width, const int height);
 
 void KeyCallback(GLFWwindow *window, int key, int scancode, int action,

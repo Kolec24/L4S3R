@@ -295,6 +295,12 @@ void sorg::SetupTriangles(GLuint program, std::span<const float> vertices,
     glBindVertexArray(0);
 }
 
+void sorg::SetUniform(GLuint program, const GLchar *name, bool value)
+{
+    glUseProgram(program);
+    glUniform1i(glGetUniformLocation(program, name), value);
+}
+
 void sorg::SetUniform(GLuint program, const GLchar *name, float value)
 {
     glUseProgram(program);

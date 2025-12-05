@@ -56,6 +56,7 @@ void SetupLines(GLuint program, std::span<const float> vertices,
                 std::span<const unsigned int> indices, unsigned counter);
 void SetupTriangles(GLuint program, std::span<const float> vertices,
                     std::span<const unsigned int> indices, unsigned counter);
+void SetUniform(GLuint program, const char *name, bool value);
 void SetUniform(GLuint program, const char *name, float value);
 
 void Draw(float current_time);

@@ -17,6 +17,10 @@ class Level
     void OnRightClicked(float x, float y);
 
   private:
+    void CheckFinishCondition();
+    void OnLevelFinished();
+
+  private:
     Board           board_;
     LaserController laser_controller_;
 };

@@ -62,6 +62,7 @@ void Board::Refresh()
     board_origin_relative_ = {initial_horizontal_measurement,
                               -initial_vertical_measurement};
 
+    // TODO: Draw only vertices used for board!
     std::vector<float> vertices;
     float              vertical_measurement = initial_vertical_measurement;
     for (int i = 0; i < kHeight + 1; ++i)
