@@ -17,7 +17,9 @@ class Board
     float GetOriginRelativeX() const;
     float GetOriginRelativeY() const;
 
-    int GetBoardState(unsigned x, unsigned y) const;
+    void SetBoardState(unsigned x, unsigned y, int value);
+    int  GetBoardState(unsigned x, unsigned y) const;
+    void RemoveLasersFromBoard();
 
     void AddOrChangeMirror(float x, float y);
     void RemoveMirror(float x, float y);

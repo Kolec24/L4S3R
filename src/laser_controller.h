@@ -6,39 +6,53 @@
 
 #include <vector>
 
-enum class Direction
+enum class Location
 {
     kLeft = 0,
     kRight,
-    kTop,
-    kBottom
+    kUp,
+    kDown
 };
 
 struct Laser
 {
-    const Direction    kLocation = Direction::kLeft;
-    const int          kIndex    = 0;
-    const sorg::Colour kColour   = {188.0f, 18.0f, 255.0f, 1.0f};
+    const unsigned            kId = 0;
+    const std::pair<int, int> kSourceCell;
+    const std::pair<int, int> kDirection;
+    const sorg::Colour        kColour = {0.0f, 0.0f, 0.0f, 1.0f};
 };
 
 class LaserController
 {
   public:
-    void Initialise(Board *pBoard);
+    void Initialise(Board *board_ptr);
     void Update(float current_time);
     void Refresh();
 
+    void OnBoardLogicChanged();
+
   private:
-    void AddLaserSource(const Direction &location, const int &index,
-                        const sorg::Colour &colour);
+    void AddLaserSource(const unsigned id, const std::pair<int, int> cell,
+                        const std::pair<int, int> direction,
+                        const sorg::Colour       &colour);
     void RefreshLaserSources();
 
+    void CalculateLasers();
+
+    void GetCellCentre(int x, int y, float &horizontal, float &vertical) const;
+
   private:
-    unsigned    laser_source_shader_ = 0;
-    const float kSourceDepth         = 0.0f;
+    static constexpr unsigned index_offset        = 100;
+    static constexpr bool     infiltrating_lasers = false;
+
+    unsigned laser_source_shader_ = 0;
+    unsigned laser_shader_        = 0;
+
+    const float kLaserSourceDepth = 0.0f;
+    const float kLaserDepth       = 0.0f;
 
     std::vector<Laser> lasers_;
-    Board             *pBoard_;
+    Board             *board_ptr_;
 };
 
 #endif

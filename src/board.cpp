@@ -5,7 +5,7 @@
 
 void Board::Initialise()
 {
-    shader_ = sorg::SetupShaderProgram("shaders/basic.vs", "shaders/basic.fs");
+    shader_ = sorg::SetupShaderProgram("shaders/board.vs", "shaders/board.fs");
     for (int i = 0; i < kWidth; ++i)
     {
         std::vector<int> row;
@@ -139,8 +139,34 @@ float Board::GetOriginRelativeY() const
     return board_origin_relative_.second;
 }
 
+void Board::SetBoardState(unsigned x, unsigned y, int value)
+{
+    board_state_[x][y] = value;
+}
+
+int Board::GetBoardState(unsigned x, unsigned y) const
+{
+    return board_state_[x][y];
+}
+
+void Board::RemoveLasersFromBoard()
+{
+    for (auto &line : board_state_)
+    {
+        for (auto &state : line)
+        {
+            if (state != -1 && state != 0 && state != 1)
+            {
+                state = 0;
+            }
+        }
+    }
+}
+
 void Board::AddOrChangeMirror(float x, float y)
 {
+    RemoveLasersFromBoard();
+
     if (cell_size_ == 0)
     {
         std::cout << "[L4S3R] Board: OnClicked: cell_size is 0." << std::endl;
@@ -182,6 +208,8 @@ void Board::AddOrChangeMirror(float x, float y)
 
 void Board::RemoveMirror(float x, float y)
 {
+    RemoveLasersFromBoard();
+
     if (cell_size_ == 0)
     {
         std::cout << "[L4S3R] Board: OnClicked: cell_size is 0." << std::endl;
