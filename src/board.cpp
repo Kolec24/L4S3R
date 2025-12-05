@@ -62,42 +62,59 @@ void Board::Refresh()
     board_origin_relative_ = {initial_horizontal_measurement,
                               -initial_vertical_measurement};
 
-    // TODO: Draw only vertices used for board!
-    std::vector<float> vertices;
-    float              vertical_measurement = initial_vertical_measurement;
-    for (int i = 0; i < kHeight + 1; ++i)
-    {
-        float horizontal_measurement = initial_horizontal_measurement;
-        for (int j = 0; j < kWidth + 1; ++j)
-        {
-            vertices.push_back(horizontal_measurement);
-            vertices.push_back(-1 * vertical_measurement);
-            vertices.push_back(kDepth);
-            vertices.insert(std::end(vertices), std::begin(board_colour),
-                            std::end(board_colour));
-            horizontal_measurement += 1 / horizontal_spacing;
-        }
-
-        vertical_measurement += 1 / vertical_spacing;
-    }
-
+    std::vector<float>    vertices;
     std::vector<unsigned> indices;
-    for (auto i = 0; i < kHeight + 1; ++i)
+
+    // Vertical lines.
+    for (int i = 0; i < kWidth + 1; ++i)
     {
-        auto start = i * (kWidth + 1);
-        indices.push_back(start);
-        indices.push_back(start + kWidth);
+        vertices.push_back(GetOriginRelativeX() + i * GetHorizontalIncrement());
+        vertices.push_back(GetOriginRelativeY());
+        vertices.push_back(kDepth);
+        vertices.insert(std::end(vertices), std::begin(board_colour),
+                        std::end(board_colour));
+
+        vertices.push_back(GetOriginRelativeX() + i * GetHorizontalIncrement());
+        vertices.push_back(GetOriginRelativeY() -
+                           kHeight * GetVerticalIncrement());
+        vertices.push_back(kDepth);
+        vertices.insert(std::end(vertices), std::begin(board_colour),
+                        std::end(board_colour));
+
+        indices.push_back(i * 2);
+        indices.push_back(i * 2 + 1);
     }
 
-    for (auto i = 0; i < kWidth + 1; ++i)
+    // Top line.
+    indices.push_back(0);
+    indices.push_back(2 * kWidth);
+
+    // Bottom line.
+    indices.push_back(1);
+    indices.push_back(2 * kWidth + 1);
+
+    // Horizontal_lines.
+    for (int i = 1; i < kHeight; ++i)
     {
-        auto start = i;
-        indices.push_back(start);
-        indices.push_back(start + kHeight * (kWidth + 1));
+        vertices.push_back(GetOriginRelativeX());
+        vertices.push_back(GetOriginRelativeY() - i * GetVerticalIncrement());
+        vertices.push_back(kDepth);
+        vertices.insert(std::end(vertices), std::begin(board_colour),
+                        std::end(board_colour));
+
+        vertices.push_back(GetOriginRelativeX() +
+                           kWidth * GetHorizontalIncrement());
+        vertices.push_back(GetOriginRelativeY() - i * GetVerticalIncrement());
+        vertices.push_back(kDepth);
+        vertices.insert(std::end(vertices), std::begin(board_colour),
+                        std::end(board_colour));
+
+        indices.push_back(2 * (kWidth + i));
+        indices.push_back(2 * (kWidth + i) + 1);
     }
 
     // Mirrors.
-    unsigned current_index = (kHeight + 1) * (kWidth + 1);
+    unsigned current_index = 2 * (kWidth + kHeight);
     for (int i = 0; i < kWidth; ++i)
     {
         for (int j = 0; j < kHeight; ++j)
