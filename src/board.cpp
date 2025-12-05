@@ -48,10 +48,9 @@ void Board::Refresh()
     float vertical_skips   = vertical_spacing - 0.5f * kHeight;
 
     horizontal_increment_ = 1 / horizontal_spacing;
-    vertical_increment_   = 1 / vertical_spacing;
+    vertical_increment_   = -1 / vertical_spacing;
 
-    float initial_vertical_measurement =
-        -1 + vertical_skips * vertical_increment_;
+    float initial_vertical_measurement = vertical_skips * vertical_increment_;
     float initial_horizontal_measurement =
         -1 + horizontal_skips * horizontal_increment_;
 
@@ -75,7 +74,7 @@ void Board::Refresh()
                         std::end(board_colour));
 
         vertices.push_back(GetOriginRelativeX() + i * GetHorizontalIncrement());
-        vertices.push_back(GetOriginRelativeY() -
+        vertices.push_back(GetOriginRelativeY() +
                            kHeight * GetVerticalIncrement());
         vertices.push_back(kDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
@@ -97,14 +96,14 @@ void Board::Refresh()
     for (int i = 1; i < kHeight; ++i)
     {
         vertices.push_back(GetOriginRelativeX());
-        vertices.push_back(GetOriginRelativeY() - i * GetVerticalIncrement());
+        vertices.push_back(GetOriginRelativeY() + i * GetVerticalIncrement());
         vertices.push_back(kDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
         vertices.push_back(GetOriginRelativeX() +
                            kWidth * GetHorizontalIncrement());
-        vertices.push_back(GetOriginRelativeY() - i * GetVerticalIncrement());
+        vertices.push_back(GetOriginRelativeY() + i * GetVerticalIncrement());
         vertices.push_back(kDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
@@ -124,11 +123,11 @@ void Board::Refresh()
                 float mirror_top_x =
                     GetOriginRelativeX() + i * GetHorizontalIncrement();
                 float mirror_top_y =
-                    GetOriginRelativeY() - j * GetVerticalIncrement();
+                    GetOriginRelativeY() + j * GetVerticalIncrement();
                 float mirror_bottom_x =
                     GetOriginRelativeX() + (i + 1) * GetHorizontalIncrement();
                 float mirror_bottom_y =
-                    GetOriginRelativeY() - (j + 1) * GetVerticalIncrement();
+                    GetOriginRelativeY() + (j + 1) * GetVerticalIncrement();
                 vertices.push_back(mirror_top_x);
                 vertices.push_back(mirror_top_y);
                 vertices.push_back(kDepth);
@@ -149,11 +148,11 @@ void Board::Refresh()
                 float mirror_top_x =
                     GetOriginRelativeX() + (i + 1) * GetHorizontalIncrement();
                 float mirror_top_y =
-                    GetOriginRelativeY() - j * GetVerticalIncrement();
+                    GetOriginRelativeY() + j * GetVerticalIncrement();
                 float mirror_bottom_x =
                     GetOriginRelativeX() + i * GetHorizontalIncrement();
                 float mirror_bottom_y =
-                    GetOriginRelativeY() - (j + 1) * GetVerticalIncrement();
+                    GetOriginRelativeY() + (j + 1) * GetVerticalIncrement();
 
                 vertices.push_back(mirror_top_x);
                 vertices.push_back(mirror_top_y);

@@ -90,7 +90,7 @@ void LaserController::RefreshLaserSources()
             board.GetOriginRelativeX() +
             laser.kSourceCell.first * board.GetHorizontalIncrement();
         float top_left_y =
-            board.GetOriginRelativeY() -
+            board.GetOriginRelativeY() +
             laser.kSourceCell.second * board.GetVerticalIncrement();
 
         float top_right_x    = top_left_x + board.GetHorizontalIncrement();
@@ -98,7 +98,7 @@ void LaserController::RefreshLaserSources()
         float bottom_right_x = top_right_x;
 
         float top_right_y    = top_left_y;
-        float bottom_left_y  = top_left_y - board.GetVerticalIncrement();
+        float bottom_left_y  = top_left_y + board.GetVerticalIncrement();
         float bottom_right_y = bottom_left_y;
 
         positions2d.push_back({top_left_x, top_left_y});
@@ -161,7 +161,7 @@ void LaserController::RefreshTargets()
 
         float top_left_x = board.GetOriginRelativeX() +
                            cell.first * board.GetHorizontalIncrement();
-        float top_left_y = board.GetOriginRelativeY() -
+        float top_left_y = board.GetOriginRelativeY() +
                            cell.second * board.GetVerticalIncrement();
 
         float top_right_x    = top_left_x + board.GetHorizontalIncrement();
@@ -169,7 +169,7 @@ void LaserController::RefreshTargets()
         float bottom_right_x = top_right_x;
 
         float top_right_y    = top_left_y;
-        float bottom_left_y  = top_left_y - board.GetVerticalIncrement();
+        float bottom_left_y  = top_left_y + board.GetVerticalIncrement();
         float bottom_right_y = bottom_left_y;
 
         positions2d.push_back({top_left_x, top_left_y});
@@ -385,5 +385,5 @@ void LaserController::GetCellCentre(int x, int y, float &horizontal,
     horizontal = board.GetOriginRelativeX() +
                  board.GetHorizontalIncrement() * (x + 0.5f);
     vertical =
-        board.GetOriginRelativeY() - board.GetVerticalIncrement() * (y + 0.5f);
+        board.GetOriginRelativeY() + board.GetVerticalIncrement() * (y + 0.5f);
 }
