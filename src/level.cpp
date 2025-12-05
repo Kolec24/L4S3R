@@ -30,12 +30,18 @@ void Level::SetViewportDimensions(float viewport_width, float viewport_height,
 
 void Level::OnLeftClicked(float x, float y)
 {
-    board_.AddOrChangeMirror(x, y);
-    laser_controller_.OnBoardLogicChanged();
+    bool board_changed = board_.AddOrChangeMirror(x, y);
+    if (board_changed)
+    {
+        laser_controller_.OnBoardLogicChanged();
+    }
 }
 
 void Level::OnRightClicked(float x, float y)
 {
-    board_.RemoveMirror(x, y);
-    laser_controller_.OnBoardLogicChanged();
+    bool board_changed = board_.RemoveMirror(x, y);
+    if (board_changed)
+    {
+        laser_controller_.OnBoardLogicChanged();
+    }
 }

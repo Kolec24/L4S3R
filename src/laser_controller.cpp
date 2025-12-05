@@ -15,9 +15,7 @@ void LaserController::Initialise(Board *board_ptr)
     AddLaserSource(lasers_.size() + index_offset, {3, -1}, {0, 1},
                    {0.0f, 255.0f, 0.0f, 1.0f});
 
-    RefreshLaserSources();
-
-    CalculateLasers();
+    Refresh();
 }
 
 void LaserController::Update(float current_time)
@@ -28,11 +26,12 @@ void LaserController::Update(float current_time)
 void LaserController::Refresh()
 {
     RefreshLaserSources();
+    RefreshLasers();
 }
 
 void LaserController::OnBoardLogicChanged()
 {
-    CalculateLasers();
+    RefreshLasers();
 }
 
 void LaserController::AddLaserSource(const unsigned            id,
@@ -111,7 +110,7 @@ void LaserController::RefreshLaserSources()
                          laser_indices.size());
 }
 
-void LaserController::CalculateLasers()
+void LaserController::RefreshLasers()
 {
     if (!board_ptr_)
     {

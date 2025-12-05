@@ -28,6 +28,11 @@ void Board::SetViewportDimensions(float viewport_width, float viewport_height)
 
 void Board::Refresh()
 {
+    RemoveLasersFromBoard();
+
+    auto board_colour  = GetBoardNormalisedColour();
+    auto mirror_colour = GetMirrorNormalisedColour();
+
     // Board frame.
     float width_spacing = static_cast<float>(viewport_width_) /
                           (kWidth + 2 * kHorizontalHalfOffset);
@@ -67,6 +72,8 @@ void Board::Refresh()
             vertices.push_back(horizontal_measurement);
             vertices.push_back(-1 * vertical_measurement);
             vertices.push_back(kDepth);
+            vertices.insert(std::end(vertices), std::begin(board_colour),
+                            std::end(board_colour));
             horizontal_measurement += 1 / horizontal_spacing;
         }
 
@@ -89,24 +96,82 @@ void Board::Refresh()
     }
 
     // Mirrors.
+    unsigned current_index = (kHeight + 1) * (kWidth + 1);
     for (int i = 0; i < kWidth; ++i)
     {
         for (int j = 0; j < kHeight; ++j)
         {
             if (board_state_[i][j] == 1)
             {
-                indices.push_back(i + j * (kWidth + 1));
-                indices.push_back(i + (j + 1) * (kWidth + 1) + 1);
+                float mirror_top_x =
+                    GetOriginRelativeX() + i * GetHorizontalIncrement();
+                float mirror_top_y =
+                    GetOriginRelativeY() - j * GetVerticalIncrement();
+                float mirror_bottom_x =
+                    GetOriginRelativeX() + (i + 1) * GetHorizontalIncrement();
+                float mirror_bottom_y =
+                    GetOriginRelativeY() - (j + 1) * GetVerticalIncrement();
+                vertices.push_back(mirror_top_x);
+                vertices.push_back(mirror_top_y);
+                vertices.push_back(kDepth);
+                vertices.insert(std::end(vertices), std::begin(mirror_colour),
+                                std::end(mirror_colour));
+
+                vertices.push_back(mirror_bottom_x);
+                vertices.push_back(mirror_bottom_y);
+                vertices.push_back(kDepth);
+                vertices.insert(std::end(vertices), std::begin(mirror_colour),
+                                std::end(mirror_colour));
+
+                indices.push_back(current_index++);
+                indices.push_back(current_index++);
             }
             else if (board_state_[i][j] == -1)
             {
-                indices.push_back(i + j * (kWidth + 1) + 1);
-                indices.push_back(i + (j + 1) * (kWidth + 1));
+                float mirror_top_x =
+                    GetOriginRelativeX() + (i + 1) * GetHorizontalIncrement();
+                float mirror_top_y =
+                    GetOriginRelativeY() - j * GetVerticalIncrement();
+                float mirror_bottom_x =
+                    GetOriginRelativeX() + i * GetHorizontalIncrement();
+                float mirror_bottom_y =
+                    GetOriginRelativeY() - (j + 1) * GetVerticalIncrement();
+
+                vertices.push_back(mirror_top_x);
+                vertices.push_back(mirror_top_y);
+                vertices.push_back(kDepth);
+                vertices.insert(std::end(vertices), std::begin(mirror_colour),
+                                std::end(mirror_colour));
+
+                vertices.push_back(mirror_bottom_x);
+                vertices.push_back(mirror_bottom_y);
+                vertices.push_back(kDepth);
+                vertices.insert(std::end(vertices), std::begin(mirror_colour),
+                                std::end(mirror_colour));
+
+                indices.push_back(current_index++);
+                indices.push_back(current_index++);
             }
         }
     }
 
     sorg::SetupLines(shader_, vertices, indices, indices.size());
+}
+
+std::vector<float> Board::GetBoardNormalisedColour() const
+{
+    std::vector<float> colour = {
+        board_colour_.r / 255.0f, board_colour_.g / 255.0f,
+        board_colour_.b / 255.0f, board_colour_.a / 255.0f};
+    return colour;
+}
+
+std::vector<float> Board::GetMirrorNormalisedColour() const
+{
+    std::vector<float> colour = {
+        mirror_colour_.r / 255.0f, mirror_colour_.g / 255.0f,
+        mirror_colour_.b / 255.0f, mirror_colour_.a / 255.0f};
+    return colour;
 }
 
 int Board::GetWidth() const
@@ -163,21 +228,19 @@ void Board::RemoveLasersFromBoard()
     }
 }
 
-void Board::AddOrChangeMirror(float x, float y)
+bool Board::AddOrChangeMirror(float x, float y)
 {
-    RemoveLasersFromBoard();
-
     if (cell_size_ == 0)
     {
         std::cout << "[L4S3R] Board: OnClicked: cell_size is 0." << std::endl;
-        return;
+        return false;
     }
 
     if (x < board_origin_.first || y < board_origin_.second ||
         x > board_origin_.first + kWidth * cell_size_ ||
         y > board_origin_.second + kHeight * cell_size_)
     {
-        return;
+        return false;
     }
 
     unsigned horizontal_vertex = (x - board_origin_.first) / cell_size_;
@@ -185,42 +248,40 @@ void Board::AddOrChangeMirror(float x, float y)
 
     switch (board_state_[horizontal_vertex][vertical_vertex])
     {
-    case 0:
-        board_state_[horizontal_vertex][vertical_vertex] = 1;
-        break;
-
     case 1:
         board_state_[horizontal_vertex][vertical_vertex] = -1;
         break;
 
+    case 0:
     case -1:
+    default:
         board_state_[horizontal_vertex][vertical_vertex] = 1;
         break;
 
-    default:
-        std::cout << "[L4S3R] Board: OnClicked: Invalid board state!"
-                  << std::endl;
-        break;
+        // std::cout << "[L4S3R] Board: OnClicked: Invalid board state!"
+        //           << std::endl;
+        // break;
     }
 
     Refresh();
+    return true;
 }
 
-void Board::RemoveMirror(float x, float y)
+bool Board::RemoveMirror(float x, float y)
 {
     RemoveLasersFromBoard();
 
     if (cell_size_ == 0)
     {
         std::cout << "[L4S3R] Board: OnClicked: cell_size is 0." << std::endl;
-        return;
+        return false;
     }
 
     if (x < board_origin_.first || y < board_origin_.second ||
         x > board_origin_.first + kWidth * cell_size_ ||
         y > board_origin_.second + kHeight * cell_size_)
     {
-        return;
+        return false;
     }
 
     unsigned horizontal_vertex = (x - board_origin_.first) / cell_size_;
@@ -229,4 +290,5 @@ void Board::RemoveMirror(float x, float y)
     board_state_[horizontal_vertex][vertical_vertex] = 0;
 
     Refresh();
+    return true;
 }

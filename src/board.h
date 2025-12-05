@@ -1,6 +1,7 @@
 #ifndef _BOARD_H_
 #define _BOARD_H_
 
+#include "sorg/sorg.h"
 #include <vector>
 
 class Board
@@ -9,6 +10,9 @@ class Board
     void Initialise();
     void SetViewportDimensions(float viewport_width, float viewport_height);
     void Refresh();
+
+    std::vector<float> GetBoardNormalisedColour() const;
+    std::vector<float> GetMirrorNormalisedColour() const;
 
     int   GetWidth() const;
     int   GetHeight() const;
@@ -21,8 +25,8 @@ class Board
     int  GetBoardState(unsigned x, unsigned y) const;
     void RemoveLasersFromBoard();
 
-    void AddOrChangeMirror(float x, float y);
-    void RemoveMirror(float x, float y);
+    bool AddOrChangeMirror(float x, float y);
+    bool RemoveMirror(float x, float y);
 
   private:
     unsigned    shader_ = 0;
@@ -43,5 +47,8 @@ class Board
     float                         cell_size_            = 0.0f;
     float                         horizontal_increment_ = 0.0f;
     float                         vertical_increment_   = 0.0f;
+
+    sorg::Colour board_colour_  = {50.0f, 50.0f, 50.0f, 255.0f};
+    sorg::Colour mirror_colour_ = {255.0f, 255.0f, 255.0f, 255.0f};
 };
 #endif

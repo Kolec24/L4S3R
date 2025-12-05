@@ -1,18 +1,10 @@
-#ifndef _LASER_H_
-#define _LASER_H_
+#ifndef _LASER_CONTROLLER_H_
+#define _LASER_CONTROLLER_H_
 
 #include "sorg/sorg.h"
 #include "board.h"
 
 #include <vector>
-
-enum class Location
-{
-    kLeft = 0,
-    kRight,
-    kUp,
-    kDown
-};
 
 struct Laser
 {
@@ -45,7 +37,7 @@ class LaserController
                         const sorg::Colour       &colour);
     void RefreshLaserSources();
 
-    void CalculateLasers();
+    void RefreshLasers();
 
     void GetCellCentre(int x, int y, float &horizontal, float &vertical) const;
 
