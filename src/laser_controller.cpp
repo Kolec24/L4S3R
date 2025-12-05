@@ -59,17 +59,12 @@ void LaserController::RefreshLaserSources()
 
     for (int i = 0; i < lasers_.size(); ++i)
     {
-        Laser laser = lasers_[i];
+        Laser laser  = lasers_[i];
+        auto  colour = laser.GetNormalisedColour();
 
         std::vector<std::pair<float, float>> positions2d;
         std::vector<std::pair<float, float>> uv = {
             {0.0f, 0.0f}, {0.0f, 1.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}};
-
-        auto laser_colour = laser.kColour;
-
-        std::vector<float> colour = {
-            laser_colour.r / 255.0f, laser_colour.g / 255.0f,
-            laser_colour.b / 255.0f, laser_colour.a / 255.0f};
 
         float top_left_x =
             board.GetOriginRelativeX() +
@@ -133,11 +128,7 @@ void LaserController::CalculateLasers()
     unsigned total_number_of_vertices = 0;
     for (auto &laser : lasers_)
     {
-        auto laser_colour = laser.kColour;
-
-        std::vector<float> colour = {
-            laser_colour.r / 255.0f, laser_colour.g / 255.0f,
-            laser_colour.b / 255.0f, laser_colour.a / 255.0f};
+        auto colour = laser.GetNormalisedColour();
 
         int first_x = laser.kSourceCell.first;
         int first_y = laser.kSourceCell.second;

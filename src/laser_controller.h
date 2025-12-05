@@ -20,6 +20,14 @@ struct Laser
     const std::pair<int, int> kSourceCell;
     const std::pair<int, int> kDirection;
     const sorg::Colour        kColour = {0.0f, 0.0f, 0.0f, 1.0f};
+
+    std::vector<float> GetNormalisedColour() const
+    {
+        std::vector<float> colour = {kColour.r / 255.0f, kColour.g / 255.0f,
+                                     kColour.b / 255.0f, kColour.a / 255.0f};
+
+        return colour;
+    }
 };
 
 class LaserController
