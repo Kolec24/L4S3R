@@ -10,7 +10,7 @@ float lineDist(vec2 point, vec2 start, vec2 end)
     vec2 to_point  = point - start;
     vec2 line = end - start;
     float h = clamp(dot(to_point, line) / dot(line, line), 0.0f, 1.0f);
-    return length(to_point - line * h);
+    return length(line * h - to_point );
 }
 
 void main()

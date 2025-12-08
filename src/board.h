@@ -7,6 +7,10 @@
 class Board
 {
   public:
+    Board() = default;
+    Board(int width, int height,
+          const std::vector<std::vector<int>> &board_state);
+
     void Initialise();
     void SetViewportDimensions(float viewport_width, float viewport_height);
     void Refresh();
@@ -28,12 +32,14 @@ class Board
     bool AddOrChangeMirror(float x, float y);
     bool RemoveMirror(float x, float y);
 
+    void DebugPrintState();
+
   private:
     unsigned    shader_ = 0;
     const float kDepth  = -0.5f;
 
-    const int kWidth  = 5;
-    const int kHeight = 5;
+    const int kWidth  = 0;
+    const int kHeight = 0;
 
     const int kHorizontalHalfOffset = 1;
     const int kVerticalHalfOffset   = 2;

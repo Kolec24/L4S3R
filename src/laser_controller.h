@@ -6,6 +6,14 @@
 
 #include <vector>
 
+struct LaserData
+{
+    std::pair<int, int> source_cell_;
+    std::pair<int, int> target_cell_;
+    std::pair<int, int> direction_;
+    sorg::Colour        colour_;
+};
+
 struct Laser
 {
     const unsigned            kId = 0;
@@ -42,6 +50,9 @@ struct Target
 class LaserController
 {
   public:
+    LaserController() = default;
+    LaserController(const std::vector<LaserData> lasers);
+
     void Initialise(Board *board_ptr);
     void Update(float current_time);
     void Refresh();

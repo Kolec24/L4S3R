@@ -3,20 +3,15 @@
 
 #include <iostream>
 
+Board::Board(int width, int height,
+             const std::vector<std::vector<int>> &board_state)
+    : kWidth(width), kHeight(height), board_state_(board_state)
+{
+}
+
 void Board::Initialise()
 {
     shader_ = sorg::SetupShaderProgram("shaders/board.vs", "shaders/board.fs");
-    for (int i = 0; i < kWidth; ++i)
-    {
-        std::vector<int> row;
-        for (int j = 0; j < kHeight; ++j)
-        {
-            row.push_back(0);
-        }
-
-        board_state_.push_back(row);
-    }
-
     Refresh();
 }
 
@@ -308,4 +303,17 @@ bool Board::RemoveMirror(float x, float y)
 
     Refresh();
     return true;
+}
+
+void Board::DebugPrintState()
+{
+    for (const auto &line : board_state_)
+    {
+        for (const auto &state : line)
+        {
+            std::cout << state;
+        }
+
+        std::cout << std::endl;
+    }
 }

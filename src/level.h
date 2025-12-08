@@ -4,9 +4,21 @@
 #include "board.h"
 #include "laser_controller.h"
 
+struct LevelData
+{
+    int board_width_  = 0;
+    int board_height_ = 0;
+
+    std::vector<std::vector<int>> board_state_;
+    std::vector<LaserData>        lasers_;
+};
+
 class Level
 {
   public:
+    Level() = default;
+    Level(LevelData data);
+
     void Initialise();
     void Update(float current_time);
     void Refresh();
@@ -21,6 +33,7 @@ class Level
     void OnLevelFinished();
 
   private:
+    bool            finished_ = false;
     Board           board_;
     LaserController laser_controller_;
 };

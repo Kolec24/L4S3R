@@ -2,6 +2,12 @@
 
 #include <iostream>
 
+Level::Level(LevelData data)
+    : board_(data.board_width_, data.board_height_, data.board_state_),
+      laser_controller_(data.lasers_)
+{
+}
+
 void Level::Initialise()
 {
     board_.Initialise();
@@ -32,6 +38,11 @@ void Level::SetViewportDimensions(float viewport_width, float viewport_height,
 
 void Level::OnLeftClicked(float x, float y)
 {
+    if (finished_)
+    {
+        return;
+    }
+
     bool board_changed = board_.AddOrChangeMirror(x, y);
     if (board_changed)
     {
@@ -42,6 +53,11 @@ void Level::OnLeftClicked(float x, float y)
 
 void Level::OnRightClicked(float x, float y)
 {
+    if (finished_)
+    {
+        return;
+    }
+
     bool board_changed = board_.RemoveMirror(x, y);
     if (board_changed)
     {
@@ -60,5 +76,6 @@ void Level::CheckFinishCondition()
 
 void Level::OnLevelFinished()
 {
+    finished_ = true;
     std::cout << "WIN!" << std::endl;
 }

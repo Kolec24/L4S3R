@@ -2,10 +2,18 @@
 
 #include <iostream>
 
+LaserController::LaserController(const std::vector<LaserData> lasers)
+{
+    for (const auto &data : lasers)
+    {
+        AddLaserWithTarget(lasers_.size() + index_offset, data.source_cell_,
+                           data.target_cell_, data.direction_, data.colour_);
+    }
+}
+
 void LaserController::Initialise(Board *board_ptr)
 {
     board_ptr_ = board_ptr;
-
     laser_shader_ =
         sorg::SetupShaderProgram("shaders/laser.vs", "shaders/laser.fs");
     laser_source_shader_ = sorg::SetupShaderProgram("shaders/laser_source.vs",
@@ -14,11 +22,6 @@ void LaserController::Initialise(Board *board_ptr)
                                                     "shaders/target_nohit.fs");
     target_hit_shader_   = sorg::SetupShaderProgram("shaders/target_hit.vs",
                                                     "shaders/target_hit.fs");
-
-    AddLaserWithTarget(lasers_.size() + index_offset, {-1, 1}, {-1, 3}, {1, 0},
-                       {255.0f, 0.0f, 0.0f, 1.0f});
-    AddLaserWithTarget(lasers_.size() + index_offset, {3, -1}, {5, 2}, {0, 1},
-                       {0.0f, 255.0f, 0.0f, 1.0f});
 
     Refresh();
 }
