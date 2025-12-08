@@ -113,7 +113,7 @@ void Board::Refresh()
     {
         for (int j = 0; j < kHeight; ++j)
         {
-            if (board_state_[i][j] == 1)
+            if (GetBoardState(i, j) == 1)
             {
                 float mirror_top_x =
                     GetOriginRelativeX() + i * GetHorizontalIncrement();
@@ -138,7 +138,7 @@ void Board::Refresh()
                 indices.push_back(current_index++);
                 indices.push_back(current_index++);
             }
-            else if (board_state_[i][j] == -1)
+            else if (GetBoardState(i, j) == -1)
             {
                 float mirror_top_x =
                     GetOriginRelativeX() + (i + 1) * GetHorizontalIncrement();
@@ -218,12 +218,12 @@ float Board::GetOriginRelativeY() const
 
 void Board::SetBoardState(unsigned x, unsigned y, int value)
 {
-    board_state_[x][y] = value;
+    board_state_[y][x] = value;
 }
 
 int Board::GetBoardState(unsigned x, unsigned y) const
 {
-    return board_state_[x][y];
+    return board_state_[y][x];
 }
 
 void Board::RemoveLasersFromBoard()
@@ -232,7 +232,7 @@ void Board::RemoveLasersFromBoard()
     {
         for (auto &state : line)
         {
-            if (state != -1 && state != 0 && state != 1)
+            if (state > 1)
             {
                 state = 0;
             }
@@ -258,21 +258,17 @@ bool Board::AddOrChangeMirror(float x, float y)
     unsigned horizontal_vertex = (x - board_origin_.first) / cell_size_;
     unsigned vertical_vertex   = (y - board_origin_.second) / cell_size_;
 
-    switch (board_state_[horizontal_vertex][vertical_vertex])
+    switch (GetBoardState(horizontal_vertex, vertical_vertex))
     {
     case 1:
-        board_state_[horizontal_vertex][vertical_vertex] = -1;
+        SetBoardState(horizontal_vertex, vertical_vertex, -1);
         break;
 
     case 0:
     case -1:
     default:
-        board_state_[horizontal_vertex][vertical_vertex] = 1;
+        SetBoardState(horizontal_vertex, vertical_vertex, 1);
         break;
-
-        // std::cout << "[L4S3R] Board: OnClicked: Invalid board state!"
-        //           << std::endl;
-        // break;
     }
 
     Refresh();
@@ -299,7 +295,7 @@ bool Board::RemoveMirror(float x, float y)
     unsigned horizontal_vertex = (x - board_origin_.first) / cell_size_;
     unsigned vertical_vertex   = (y - board_origin_.second) / cell_size_;
 
-    board_state_[horizontal_vertex][vertical_vertex] = 0;
+    SetBoardState(horizontal_vertex, vertical_vertex, 0);
 
     Refresh();
     return true;

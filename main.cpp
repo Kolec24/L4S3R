@@ -175,6 +175,7 @@ void ParseLevelData(const char *path, LevelData &data)
                     break;
                 case 'x':
                     current_board_line.push_back(-2);
+                    break;
                 default:
                     break;
                 }
