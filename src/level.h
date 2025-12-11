@@ -21,9 +21,12 @@ class Level
 
     void Initialise();
     void Update(float current_time);
+    void Reset();
     void Refresh();
     void SetViewportDimensions(float viewport_width, float vieport_height,
                                bool refresh);
+
+    bool IsFinished() const;
 
     void OnLeftClicked(float x, float y);
     void OnRightClicked(float x, float y);

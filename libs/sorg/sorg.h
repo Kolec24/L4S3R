@@ -51,6 +51,7 @@ void   CreateAndCompileShaders(const char *vertexCode, const char *fragmentCode,
                                GLuint &vertexShader, GLuint &fragmentShader);
 void   AttachAndLinkShaders(const GLuint &program, const GLuint &vertexShader,
                             const GLuint &fragmentShader);
+void   ResetShaderProgram(GLuint program);
 
 void SetupLines(GLuint program, std::span<const float> vertices,
                 std::span<const unsigned int> indices, unsigned counter);

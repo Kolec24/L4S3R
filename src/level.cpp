@@ -19,6 +19,13 @@ void Level::Update(float current_time)
     laser_controller_.Update(current_time);
 }
 
+void Level::Reset()
+{
+    board_.Reset();
+    laser_controller_.Reset();
+    finished_ = false;
+}
+
 void Level::Refresh()
 {
     board_.Refresh();
@@ -36,13 +43,13 @@ void Level::SetViewportDimensions(float viewport_width, float viewport_height,
     }
 }
 
+bool Level::IsFinished() const
+{
+    return finished_;
+}
+
 void Level::OnLeftClicked(float x, float y)
 {
-    if (finished_)
-    {
-        return;
-    }
-
     bool board_changed = board_.AddOrChangeMirror(x, y);
     if (board_changed)
     {
@@ -53,11 +60,6 @@ void Level::OnLeftClicked(float x, float y)
 
 void Level::OnRightClicked(float x, float y)
 {
-    if (finished_)
-    {
-        return;
-    }
-
     bool board_changed = board_.RemoveMirror(x, y);
     if (board_changed)
     {
@@ -77,5 +79,4 @@ void Level::CheckFinishCondition()
 void Level::OnLevelFinished()
 {
     finished_ = true;
-    std::cout << "WIN!" << std::endl;
 }

@@ -13,6 +13,7 @@ class Board
 
     void Initialise();
     void SetViewportDimensions(float viewport_width, float viewport_height);
+    void Reset();
     void Refresh();
 
     std::vector<float> GetBoardNormalisedColour() const;
@@ -35,8 +36,12 @@ class Board
     void DebugPrintState();
 
   private:
-    unsigned    shader_ = 0;
-    const float kDepth  = -0.5f;
+    void ResetBoardState();
+
+  private:
+    unsigned    shader_        = 0;
+    const float kBoardDepth    = -0.5f;
+    const float kInteriorDepth = -0.6f;
 
     const int kWidth  = 0;
     const int kHeight = 0;

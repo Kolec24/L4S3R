@@ -6,11 +6,9 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
-#include <map>
 #include <vector>
 
-std::map<GLuint, sorg::ShaderData> shaders;
-std::vector<GLuint>                vertex_array_objects;
+std::unordered_map<GLuint, sorg::ShaderData>                 shaders;
 std::unordered_map<GLuint, std::vector<sorg::AttributeData>> vao_attributes;
 
 GLuint sorg::SetupShaderProgram(const GLchar *vertexPath,
@@ -104,22 +102,21 @@ void sorg::SetupShaderObjects(GLuint program)
 
     GLuint VAO;
     bool   found_vao = false;
-    for (const auto &vao : vertex_array_objects)
-    {
-        // TODO: Decide what to do about this.
-
-        // if (vao_attributes.count(vao) != 0 && vao_attributes[vao] ==
-        // attributes)
-        // {
-        //     VAO       = vao;
-        //     found_vao = true;
-        // }
-    }
+    // for (const auto &vao : vertex_array_objects)
+    // {
+    //     // TODO: Decide what to do about this.
+    //
+    //     if (vao_attributes.count(vao) != 0 && vao_attributes[vao] ==
+    //     attributes)
+    //     {
+    //         VAO       = vao;
+    //         found_vao = true;
+    //     }
+    // }
 
     if (!found_vao)
     {
         glGenVertexArrays(1, &VAO);
-        vertex_array_objects.push_back(VAO);
         vao_attributes.insert({VAO, attributes});
     }
 
@@ -237,6 +234,32 @@ void sorg::AttachAndLinkShaders(const GLuint &program,
         std::cout << "[SORG] Error: Shader: Program linkink failed!\n"
                   << infoLog << std::endl;
     }
+}
+
+void sorg::ResetShaderProgram(GLuint program)
+{
+    if (shaders.count(program) == 0)
+    {
+        std::cout << "[SORG] Error: Reset: Trying to reset a shader which is "
+                     "not initialised!"
+                  << std::endl;
+        return;
+    }
+
+    auto &shader_data = shaders[program];
+
+    glUseProgram(0);
+    glBindVertexArray(0);
+
+    auto &shader_vao = shader_data.vertex_array_object;
+    vao_attributes.erase(shader_vao);
+
+    glDeleteVertexArrays(1, &shader_data.vertex_array_object);
+    glDeleteBuffers(1, &shader_data.vertex_buffer_object);
+    glDeleteBuffers(1, &shader_data.element_buffer_object);
+
+    shaders.erase(program);
+    glDeleteProgram(program);
 }
 
 void sorg::SetupLines(GLuint program, std::span<const float> vertices,

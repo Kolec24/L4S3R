@@ -55,6 +55,7 @@ class LaserController
 
     void Initialise(Board *board_ptr);
     void Update(float current_time);
+    void Reset();
     void Refresh();
 
     void OnBoardLogicChanged();
@@ -86,7 +87,7 @@ class LaserController
 
     const float kLaserSourceDepth = 0.0f;
     const float kTargetDepth      = 0.0f;
-    const float kLaserDepth       = 0.0f;
+    const float kLaserDepth       = -0.1f;
 
     std::vector<Laser>  lasers_;
     std::vector<Target> targets_;

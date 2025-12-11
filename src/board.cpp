@@ -21,6 +21,12 @@ void Board::SetViewportDimensions(float viewport_width, float viewport_height)
     viewport_height_ = viewport_height;
 }
 
+void Board::Reset()
+{
+    sorg::ResetShaderProgram(shader_);
+    ResetBoardState();
+}
+
 void Board::Refresh()
 {
     RemoveLasersFromBoard();
@@ -64,14 +70,14 @@ void Board::Refresh()
     {
         vertices.push_back(GetOriginRelativeX() + i * GetHorizontalIncrement());
         vertices.push_back(GetOriginRelativeY());
-        vertices.push_back(kDepth);
+        vertices.push_back(kBoardDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
         vertices.push_back(GetOriginRelativeX() + i * GetHorizontalIncrement());
         vertices.push_back(GetOriginRelativeY() +
                            kHeight * GetVerticalIncrement());
-        vertices.push_back(kDepth);
+        vertices.push_back(kBoardDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
@@ -89,14 +95,14 @@ void Board::Refresh()
     {
         vertices.push_back(GetOriginRelativeX());
         vertices.push_back(GetOriginRelativeY() + i * GetVerticalIncrement());
-        vertices.push_back(kDepth);
+        vertices.push_back(kBoardDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
         vertices.push_back(GetOriginRelativeX() +
                            kWidth * GetHorizontalIncrement());
         vertices.push_back(GetOriginRelativeY() + i * GetVerticalIncrement());
-        vertices.push_back(kDepth);
+        vertices.push_back(kBoardDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
@@ -113,7 +119,7 @@ void Board::Refresh()
                                j * GetHorizontalIncrement());
             vertices.push_back(GetOriginRelativeY() +
                                i * GetVerticalIncrement());
-            vertices.push_back(kDepth);
+            vertices.push_back(kInteriorDepth);
             vertices.insert(std::end(vertices), std::begin(mirror_colour),
                             std::end(mirror_colour));
         }
@@ -125,13 +131,13 @@ void Board::Refresh()
         for (int j = 0; j < kHeight; ++j)
         {
             // Mirrors.
-            if (GetBoardState(i, j) == 1)
+            if (GetBoardState(i, j) == 2)
             {
                 indices.push_back(board_vertices_count + i + j * (kWidth + 1));
                 indices.push_back(board_vertices_count + i +
                                   (j + 1) * (kWidth + 1) + 1);
             }
-            else if (GetBoardState(i, j) == -1)
+            else if (GetBoardState(i, j) == 1)
             {
                 indices.push_back(board_vertices_count + i + j * (kWidth + 1) +
                                   1);
@@ -139,7 +145,7 @@ void Board::Refresh()
                                   (j + 1) * (kWidth + 1));
             }
             // Blockers.
-            else if (GetBoardState(i, j) == -2)
+            else if (GetBoardState(i, j) == -1)
             {
                 indices.push_back(board_vertices_count + i + j * (kWidth + 1));
                 indices.push_back(board_vertices_count + i +
@@ -217,7 +223,7 @@ void Board::RemoveLasersFromBoard()
     {
         for (auto &state : line)
         {
-            if (state > 1)
+            if (state > 2)
             {
                 state = 0;
             }
@@ -246,16 +252,16 @@ bool Board::AddOrChangeMirror(float x, float y)
     switch (GetBoardState(horizontal_vertex, vertical_vertex))
     {
     // Blockers.
-    case -2:
+    case -1:
         break;
     // Available spots.
-    case 1:
-        SetBoardState(horizontal_vertex, vertical_vertex, -1);
+    case 2:
+        SetBoardState(horizontal_vertex, vertical_vertex, 1);
         break;
     case 0:
-    case -1:
+    case 1:
     default:
-        SetBoardState(horizontal_vertex, vertical_vertex, 1);
+        SetBoardState(horizontal_vertex, vertical_vertex, 2);
         break;
     }
 
@@ -286,15 +292,11 @@ bool Board::RemoveMirror(float x, float y)
     switch (GetBoardState(horizontal_vertex, vertical_vertex))
     {
     // Blockers.
-    case -2:
+    case -1:
         break;
     // Available spots.
-    case 1:
-    case 0:
-    case -1:
-        SetBoardState(horizontal_vertex, vertical_vertex, 0);
-        break;
     default:
+        SetBoardState(horizontal_vertex, vertical_vertex, 0);
         break;
     }
 
@@ -312,5 +314,19 @@ void Board::DebugPrintState()
         }
 
         std::cout << std::endl;
+    }
+}
+
+void Board::ResetBoardState()
+{
+    for (auto &line : board_state_)
+    {
+        for (auto &cell : line)
+        {
+            if (cell > 0)
+            {
+                cell = 0;
+            }
+        }
     }
 }

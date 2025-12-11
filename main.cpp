@@ -17,11 +17,20 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action,
 void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods);
 void FramebufferSizeCallback(GLFWwindow *window, int width, int height);
 
-void ParseLevelData(const char *path, LevelData &level_data);
+void LoadLevelsFromFiles();
+bool ParseLevelData(const char *path, LevelData &level_data);
 void ParseLaserData(const std::vector<std::string> &laser_lines,
                     LaserData &laser_data, const char *path);
+void InitialiseCurrentLevel();
+
+void LoadNextLevel();
+void LoadLevel(int level_id);
+void DebugLoadLevel(int level_id);
 
 constexpr std::string kName               = "L4S3R";
+constexpr std::string kLevelsRoot         = "levels/";
+constexpr std::string kLevelExtension     = ".txt";
+constexpr int         kMaxNumberOfLevels  = 10;
 constexpr int         kNumberOfLaserLines = 4;
 unsigned              viewport_width      = 600;
 unsigned              viewport_height     = 900;
@@ -40,15 +49,16 @@ int main()
         return -1;
     }
 
-    LevelData new_level_data;
-    ParseLevelData("levels/1.txt", new_level_data);
+    LoadLevelsFromFiles();
+    InitialiseCurrentLevel();
 
-    levels.push_back(Level(new_level_data));
-    levels[current_level_id].SetViewportDimensions(viewport_width,
-                                                   viewport_height, false);
-    levels[current_level_id].Initialise();
     while (!glfwWindowShouldClose(window))
     {
+        if (levels[current_level_id].IsFinished())
+        {
+            LoadNextLevel();
+        }
+
         levels[current_level_id].Update(glfwGetTime());
 
         sorg::Draw(glfwGetTime());
@@ -107,10 +117,37 @@ void KeyCallback(GLFWwindow *window, int key, int scancode, int action,
     {
         glfwSetWindowShouldClose(window, true);
     }
+
+    // Debug
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+    {
+        DebugLoadLevel(1);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+    {
+        DebugLoadLevel(2);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+    {
+        DebugLoadLevel(3);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+    {
+        DebugLoadLevel(4);
+    }
+    else if (glfwGetKey(window, GLFW_KEY_5) == GLFW_PRESS)
+    {
+        DebugLoadLevel(5);
+    }
 }
 
 void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
 {
+    if (levels[current_level_id].IsFinished())
+    {
+        return;
+    }
+
     if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
     {
         double x, y;
@@ -138,15 +175,31 @@ void FramebufferSizeCallback(GLFWwindow *window, int width, int height)
                                                    viewport_height, true);
 }
 
-void ParseLevelData(const char *path, LevelData &data)
+void LoadLevelsFromFiles()
+{
+    for (int i = 0; i < kMaxNumberOfLevels; ++i)
+    {
+        LevelData   new_level_data;
+        std::string level_file =
+            kLevelsRoot + std::to_string(i + 1) + kLevelExtension;
+
+        bool loaded = ParseLevelData(level_file.c_str(), new_level_data);
+        if (!loaded)
+        {
+            break;
+        }
+
+        levels.push_back(Level(new_level_data));
+    }
+}
+
+bool ParseLevelData(const char *path, LevelData &data)
 {
     std::fstream in;
     in.open(path);
     if (!in.is_open())
     {
-        std::cout << "[L4S3R] ParseLevelData: Error: File did not open!\n"
-                  << path << std::endl;
-        return;
+        return false;
     }
 
     bool                     parsing_board = true;
@@ -174,7 +227,7 @@ void ParseLevelData(const char *path, LevelData &data)
                     current_board_line.push_back(0);
                     break;
                 case 'x':
-                    current_board_line.push_back(-2);
+                    current_board_line.push_back(-1);
                     break;
                 default:
                     break;
@@ -205,6 +258,8 @@ void ParseLevelData(const char *path, LevelData &data)
     ParseLaserData(current_laser_lines, last_laser, path);
 
     data.lasers_.push_back(last_laser);
+
+    return true;
 }
 
 void ParseLaserData(const std::vector<std::string> &laser_lines,
@@ -212,10 +267,6 @@ void ParseLaserData(const std::vector<std::string> &laser_lines,
 {
     if (laser_lines.size() != kNumberOfLaserLines)
     {
-        for (auto test : laser_lines)
-        {
-            std::cout << test << std::endl;
-        }
         std::cout << "[L4S3R] ParseLevelData: Error: Laser segment "
                      "does not have "
                   << kNumberOfLaserLines << " lines!\n"
@@ -261,4 +312,39 @@ void ParseLaserData(const std::vector<std::string> &laser_lines,
     laser_data.target_cell_ = current_laser_pairs[1];
     laser_data.direction_   = current_laser_pairs[2];
     laser_data.colour_      = current_laser_colour;
+}
+
+void InitialiseCurrentLevel()
+{
+    levels[current_level_id].SetViewportDimensions(viewport_width,
+                                                   viewport_height, false);
+    levels[current_level_id].Initialise();
+}
+
+void LoadNextLevel()
+{
+    LoadLevel(current_level_id + 1);
+}
+
+void LoadLevel(int level_id)
+{
+    if (level_id == current_level_id)
+    {
+        return;
+    }
+
+    if (levels.size() <= level_id)
+    {
+        return;
+    }
+
+    levels[current_level_id].Reset();
+    current_level_id = level_id;
+
+    InitialiseCurrentLevel();
+}
+
+void DebugLoadLevel(int level_id)
+{
+    LoadLevel(level_id - 1);
 }

@@ -31,6 +31,14 @@ void LaserController::Update(float current_time)
     sorg::SetUniform(laser_source_shader_, "uTime", current_time);
 }
 
+void LaserController::Reset()
+{
+    sorg::ResetShaderProgram(laser_source_shader_);
+    sorg::ResetShaderProgram(laser_shader_);
+    sorg::ResetShaderProgram(target_nohit_shader_);
+    sorg::ResetShaderProgram(target_hit_shader_);
+}
+
 void LaserController::Refresh()
 {
     RefreshLaserSources();
@@ -279,7 +287,7 @@ void LaserController::RefreshLasers()
                     board.SetBoardState(next_x, next_y, laser.kId);
                 }
                 break;
-            case 1:
+            case 2:
                 current_direction = {current_direction.second,
                                      current_direction.first};
                 GetCellCentre(next_x, next_y, next_horizontal, next_vertical);
@@ -292,7 +300,7 @@ void LaserController::RefreshLasers()
 
                 ++number_of_lines;
                 break;
-            case -1:
+            case 1:
                 current_direction = {-current_direction.second,
                                      -current_direction.first};
                 GetCellCentre(next_x, next_y, next_horizontal, next_vertical);
