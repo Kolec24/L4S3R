@@ -87,7 +87,7 @@ class LaserController
 
     const float kLaserSourceDepth = 0.0f;
     const float kTargetDepth      = 0.0f;
-    const float kLaserDepth       = -0.1f;
+    const float kLaserDepth       = -0.4f;
 
     std::vector<Laser>  lasers_;
     std::vector<Target> targets_;

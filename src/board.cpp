@@ -51,7 +51,8 @@ void Board::Refresh()
     horizontal_increment_ = 1 / horizontal_spacing;
     vertical_increment_   = -1 / vertical_spacing;
 
-    float initial_vertical_measurement = vertical_skips * vertical_increment_;
+    float initial_vertical_measurement =
+        -1 - vertical_skips * vertical_increment_;
     float initial_horizontal_measurement =
         -1 + horizontal_skips * horizontal_increment_;
 

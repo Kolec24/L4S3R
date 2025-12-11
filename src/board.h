@@ -40,8 +40,8 @@ class Board
 
   private:
     unsigned    shader_        = 0;
-    const float kBoardDepth    = -0.5f;
-    const float kInteriorDepth = -0.6f;
+    const float kBoardDepth    = -0.3f;
+    const float kInteriorDepth = -0.5f;
 
     const int kWidth  = 0;
     const int kHeight = 0;

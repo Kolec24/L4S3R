@@ -32,8 +32,9 @@ constexpr std::string kLevelsRoot         = "levels/";
 constexpr std::string kLevelExtension     = ".txt";
 constexpr int         kMaxNumberOfLevels  = 10;
 constexpr int         kNumberOfLaserLines = 4;
-unsigned              viewport_width      = 600;
-unsigned              viewport_height     = 900;
+
+unsigned viewport_width  = 600;
+unsigned viewport_height = 900;
 
 GLFWwindow *window;
 
