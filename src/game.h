@@ -39,6 +39,8 @@ class Game
     void LoadNextLevel();
     void LoadLevel(int level_id);
 
+    void SetupOverlayShaders();
+
   private:
     static constexpr std::string kLevelsRoot     = "levels/";
     static constexpr std::string kLevelExtension = ".txt";
@@ -53,6 +55,12 @@ class Game
 
     static unsigned viewport_width_;
     static unsigned viewport_height_;
+
+    const float kOverlayDepth = -1.0f;
+
+    unsigned top_shader_              = 0;
+    unsigned bottom_shader_           = 0;
+    unsigned level_transition_shader_ = 0;
 
     std::vector<Level> levels;
     int                current_level_id = -1;

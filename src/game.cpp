@@ -41,9 +41,9 @@ void Game::Initialise(int viewport_width, int viewport_height,
                       int start_level_id)
 {
     SetGameViewport(viewport_width, viewport_height, false);
+    SetupOverlayShaders();
 
     LoadLevelsFromFiles();
-
     LoadLevel(start_level_id);
 }
 
@@ -257,4 +257,67 @@ void Game::LoadLevel(int level_id)
 
     current_level_id = level_id;
     levels[current_level_id].Initialise();
+}
+
+void Game::SetupOverlayShaders()
+{
+    // Shader programs.
+    top_shader_ =
+        sorg::SetupShaderProgram("shaders/white.vs", "shaders/white.fs");
+    bottom_shader_ =
+        sorg::SetupShaderProgram("shaders/white.vs", "shaders/white.fs");
+    level_transition_shader_ =
+        sorg::SetupShaderProgram("shaders/white.vs", "shaders/white.fs");
+
+    // Typical quad indices.
+    std::vector<unsigned> indices = {0, 1, 2, 1, 3, 2};
+
+    // Vertices.
+    std::vector<float> top_vertices;
+    std::vector<float> bottom_vertices;
+    std::vector<float> level_vertices;
+
+    float level_top    = 1.0f - GetRelativeTopOffset() * 2.0f;
+    float level_bottom = -1.0f + GetRelativeBottomOffset() * 2.0f;
+    float level_left   = -1.0f + GetRelativeLeftOffset() * 2.0f;
+    float level_right  = 1.0f - GetRelativeRightOffset() * 2.0f;
+
+    // Top.
+    top_vertices.push_back(level_left);
+    top_vertices.push_back(1.0f);
+    top_vertices.push_back(kOverlayDepth);
+
+    top_vertices.push_back(level_right);
+    top_vertices.push_back(1.0f);
+    top_vertices.push_back(kOverlayDepth);
+
+    top_vertices.push_back(level_left);
+    top_vertices.push_back(level_top);
+    top_vertices.push_back(kOverlayDepth);
+
+    top_vertices.push_back(level_right);
+    top_vertices.push_back(level_top);
+    top_vertices.push_back(kOverlayDepth);
+
+    // Bottom.
+    bottom_vertices.push_back(level_left);
+    bottom_vertices.push_back(level_bottom);
+    bottom_vertices.push_back(kOverlayDepth);
+
+    bottom_vertices.push_back(level_right);
+    bottom_vertices.push_back(level_bottom);
+    bottom_vertices.push_back(kOverlayDepth);
+
+    bottom_vertices.push_back(level_left);
+    bottom_vertices.push_back(-1.0f);
+    bottom_vertices.push_back(kOverlayDepth);
+
+    bottom_vertices.push_back(level_right);
+    bottom_vertices.push_back(-1.0f);
+    bottom_vertices.push_back(kOverlayDepth);
+
+    // Render setup.
+    sorg::SetupTriangles(top_shader_, top_vertices, indices, indices.size());
+    sorg::SetupTriangles(bottom_shader_, bottom_vertices, indices,
+                         indices.size());
 }
