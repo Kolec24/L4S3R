@@ -56,8 +56,6 @@ class Game
     static unsigned viewport_width_;
     static unsigned viewport_height_;
 
-    const float kOverlayDepth = -1.0f;
-
     unsigned top_shader_              = 0;
     unsigned bottom_shader_           = 0;
     unsigned level_transition_shader_ = 0;

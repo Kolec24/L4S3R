@@ -38,9 +38,7 @@ class Board
     void ResetBoardState();
 
   private:
-    unsigned    shader_        = 0;
-    const float kBoardDepth    = -0.3f;
-    const float kInteriorDepth = -0.5f;
+    unsigned shader_ = 0;
 
     const int kWidth  = 0;
     const int kHeight = 0;

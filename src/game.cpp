@@ -4,6 +4,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "depths.h"
+
 unsigned Game::viewport_width_  = 0;
 unsigned Game::viewport_height_ = 0;
 
@@ -285,36 +287,36 @@ void Game::SetupOverlayShaders()
     // Top.
     top_vertices.push_back(level_left);
     top_vertices.push_back(1.0f);
-    top_vertices.push_back(kOverlayDepth);
+    top_vertices.push_back(depth::kOverlayDepth);
 
     top_vertices.push_back(level_right);
     top_vertices.push_back(1.0f);
-    top_vertices.push_back(kOverlayDepth);
+    top_vertices.push_back(depth::kOverlayDepth);
 
     top_vertices.push_back(level_left);
     top_vertices.push_back(level_top);
-    top_vertices.push_back(kOverlayDepth);
+    top_vertices.push_back(depth::kOverlayDepth);
 
     top_vertices.push_back(level_right);
     top_vertices.push_back(level_top);
-    top_vertices.push_back(kOverlayDepth);
+    top_vertices.push_back(depth::kOverlayDepth);
 
     // Bottom.
     bottom_vertices.push_back(level_left);
     bottom_vertices.push_back(level_bottom);
-    bottom_vertices.push_back(kOverlayDepth);
+    bottom_vertices.push_back(depth::kOverlayDepth);
 
     bottom_vertices.push_back(level_right);
     bottom_vertices.push_back(level_bottom);
-    bottom_vertices.push_back(kOverlayDepth);
+    bottom_vertices.push_back(depth::kOverlayDepth);
 
     bottom_vertices.push_back(level_left);
     bottom_vertices.push_back(-1.0f);
-    bottom_vertices.push_back(kOverlayDepth);
+    bottom_vertices.push_back(depth::kOverlayDepth);
 
     bottom_vertices.push_back(level_right);
     bottom_vertices.push_back(-1.0f);
-    bottom_vertices.push_back(kOverlayDepth);
+    bottom_vertices.push_back(depth::kOverlayDepth);
 
     // Render setup.
     sorg::SetupTriangles(top_shader_, top_vertices, indices, indices.size());

@@ -85,10 +85,6 @@ class LaserController
     unsigned target_hit_shader_   = 0;
     unsigned target_nohit_shader_ = 0;
 
-    const float kLaserSourceDepth = 0.0f;
-    const float kTargetDepth      = 0.0f;
-    const float kLaserDepth       = -0.4f;
-
     std::vector<Laser>  lasers_;
     std::vector<Target> targets_;
     Board              *board_ptr_;

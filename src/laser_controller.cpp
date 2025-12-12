@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "depths.h"
+
 LaserController::LaserController(const std::vector<LaserData> lasers)
 {
     for (const auto &data : lasers)
@@ -122,7 +124,7 @@ void LaserController::RefreshLaserSources()
             // 3d positions, uvs, colours.
             laser_vertices.push_back(positions2d[j].first);
             laser_vertices.push_back(positions2d[j].second);
-            laser_vertices.push_back(kLaserSourceDepth);
+            laser_vertices.push_back(depth::kLaserSourceDepth);
             laser_vertices.push_back(uv[j].first);
             laser_vertices.push_back(uv[j].second);
             laser_vertices.insert(std::end(laser_vertices), std::begin(colour),
@@ -196,7 +198,7 @@ void LaserController::RefreshTargets()
             // 3d positions, uvs, colours.
             vertices.push_back(positions2d[j].first);
             vertices.push_back(positions2d[j].second);
-            vertices.push_back(kTargetDepth);
+            vertices.push_back(depth::kTargetDepth);
             vertices.push_back(uv[j].first);
             vertices.push_back(uv[j].second);
             vertices.insert(std::end(vertices), std::begin(colour),
@@ -253,7 +255,7 @@ void LaserController::RefreshLasers()
 
         vertices.push_back(first_horizontal);
         vertices.push_back(first_vertical);
-        vertices.push_back(kLaserDepth);
+        vertices.push_back(depth::kLaserDepth);
         vertices.insert(std::end(vertices), std::begin(colour),
                         std::end(colour));
 
@@ -294,7 +296,7 @@ void LaserController::RefreshLasers()
 
                 vertices.push_back(next_horizontal);
                 vertices.push_back(next_vertical);
-                vertices.push_back(kLaserDepth);
+                vertices.push_back(depth::kLaserDepth);
                 vertices.insert(std::end(vertices), std::begin(colour),
                                 std::end(colour));
 
@@ -307,7 +309,7 @@ void LaserController::RefreshLasers()
 
                 vertices.push_back(next_horizontal);
                 vertices.push_back(next_vertical);
-                vertices.push_back(kLaserDepth);
+                vertices.push_back(depth::kLaserDepth);
                 vertices.insert(std::end(vertices), std::begin(colour),
                                 std::end(colour));
 
@@ -347,7 +349,7 @@ void LaserController::RefreshLasers()
 
         vertices.push_back(next_horizontal);
         vertices.push_back(next_vertical);
-        vertices.push_back(kLaserDepth);
+        vertices.push_back(depth::kLaserDepth);
         vertices.insert(std::end(vertices), std::begin(colour),
                         std::end(colour));
 

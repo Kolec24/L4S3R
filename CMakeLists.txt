@@ -11,6 +11,7 @@ add_subdirectory(libs/glad)
 
 add_executable(l4s3r 
     main.cpp
+    src/depths.h
     src/game.h
     src/game.cpp
     src/level.h

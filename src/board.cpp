@@ -1,6 +1,7 @@
 #include "board.h"
 #include "sorg/sorg.h"
 #include "game.h"
+#include "depths.h"
 
 #include <iostream>
 
@@ -72,14 +73,14 @@ void Board::Refresh()
     {
         vertices.push_back(GetOriginRelativeX() + i * GetHorizontalIncrement());
         vertices.push_back(GetOriginRelativeY());
-        vertices.push_back(kBoardDepth);
+        vertices.push_back(depth::kBoardDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
         vertices.push_back(GetOriginRelativeX() + i * GetHorizontalIncrement());
         vertices.push_back(GetOriginRelativeY() +
                            kHeight * GetVerticalIncrement());
-        vertices.push_back(kBoardDepth);
+        vertices.push_back(depth::kBoardDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
@@ -97,14 +98,14 @@ void Board::Refresh()
     {
         vertices.push_back(GetOriginRelativeX());
         vertices.push_back(GetOriginRelativeY() + i * GetVerticalIncrement());
-        vertices.push_back(kBoardDepth);
+        vertices.push_back(depth::kBoardDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
         vertices.push_back(GetOriginRelativeX() +
                            kWidth * GetHorizontalIncrement());
         vertices.push_back(GetOriginRelativeY() + i * GetVerticalIncrement());
-        vertices.push_back(kBoardDepth);
+        vertices.push_back(depth::kBoardDepth);
         vertices.insert(std::end(vertices), std::begin(board_colour),
                         std::end(board_colour));
 
@@ -121,7 +122,7 @@ void Board::Refresh()
                                j * GetHorizontalIncrement());
             vertices.push_back(GetOriginRelativeY() +
                                i * GetVerticalIncrement());
-            vertices.push_back(kInteriorDepth);
+            vertices.push_back(depth::kInteriorDepth);
             vertices.insert(std::end(vertices), std::begin(mirror_colour),
                             std::end(mirror_colour));
         }
