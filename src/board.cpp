@@ -1,5 +1,6 @@
 #include "board.h"
 #include "sorg/sorg.h"
+#include "game.h"
 
 #include <iostream>
 
@@ -15,12 +16,6 @@ void Board::Initialise()
     Refresh();
 }
 
-void Board::SetViewportDimensions(float viewport_width, float viewport_height)
-{
-    viewport_width_  = viewport_width;
-    viewport_height_ = viewport_height;
-}
-
 void Board::Reset()
 {
     sorg::ResetShaderProgram(shader_);
@@ -31,19 +26,22 @@ void Board::Refresh()
 {
     RemoveLasersFromBoard();
 
+    const auto &viewport_width  = Game::GetViewportWidth();
+    const auto &viewport_height = Game::GetViewportHeight();
+
     auto board_colour  = GetBoardNormalisedColour();
     auto mirror_colour = GetMirrorNormalisedColour();
 
     // Board frame.
-    float width_spacing = static_cast<float>(viewport_width_) /
+    float width_spacing = static_cast<float>(viewport_width) /
                           (kWidth + 2 * kHorizontalHalfOffset);
-    float height_spacing = static_cast<float>(viewport_height_) /
+    float height_spacing = static_cast<float>(viewport_height) /
                            (kHeight + 2 * kVerticalHalfOffset);
 
     cell_size_ = std::min(width_spacing, height_spacing);
 
-    float horizontal_spacing = viewport_width_ / (2 * cell_size_);
-    float vertical_spacing   = viewport_height_ / (2 * cell_size_);
+    float horizontal_spacing = viewport_width / (2 * cell_size_);
+    float vertical_spacing   = viewport_height / (2 * cell_size_);
 
     float horizontal_skips = horizontal_spacing - 0.5f * kWidth;
     float vertical_skips   = vertical_spacing - 0.5f * kHeight;
@@ -57,8 +55,8 @@ void Board::Refresh()
         -1 + horizontal_skips * horizontal_increment_;
 
     board_origin_ = {
-        viewport_width_ / 2.0f * (1 + initial_horizontal_measurement),
-        viewport_height_ / 2.0f * (1 + initial_vertical_measurement)};
+        viewport_width / 2.0f * (1 + initial_horizontal_measurement),
+        viewport_height / 2.0f * (1 + initial_vertical_measurement)};
 
     board_origin_relative_ = {initial_horizontal_measurement,
                               -initial_vertical_measurement};

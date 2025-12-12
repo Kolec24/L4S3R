@@ -1,7 +1,5 @@
 #include "level.h"
 
-#include <iostream>
-
 Level::Level(LevelData data)
     : board_(data.board_width_, data.board_height_, data.board_state_),
       laser_controller_(data.lasers_)
@@ -30,17 +28,6 @@ void Level::Refresh()
 {
     board_.Refresh();
     laser_controller_.Refresh();
-}
-
-void Level::SetViewportDimensions(float viewport_width, float viewport_height,
-                                  bool refresh)
-{
-    board_.SetViewportDimensions(viewport_width, viewport_height);
-
-    if (refresh)
-    {
-        Refresh();
-    }
 }
 
 bool Level::IsFinished() const

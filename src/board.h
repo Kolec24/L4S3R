@@ -12,7 +12,6 @@ class Board
           const std::vector<std::vector<int>> &board_state);
 
     void Initialise();
-    void SetViewportDimensions(float viewport_width, float viewport_height);
     void Reset();
     void Refresh();
 
@@ -48,9 +47,6 @@ class Board
 
     const int kHorizontalHalfOffset = 1;
     const int kVerticalHalfOffset   = 2;
-
-    float viewport_width_  = 0.0f;
-    float viewport_height_ = 0.0f;
 
     std::vector<std::vector<int>> board_state_;
     std::pair<float, float>       board_origin_;

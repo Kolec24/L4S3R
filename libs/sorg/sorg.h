@@ -60,7 +60,7 @@ void SetupTriangles(GLuint program, std::span<const float> vertices,
 void SetUniform(GLuint program, const char *name, bool value);
 void SetUniform(GLuint program, const char *name, float value);
 
-void Draw(float current_time);
+void Draw();
 } // namespace sorg
 
 #endif

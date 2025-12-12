@@ -330,7 +330,7 @@ void sorg::SetUniform(GLuint program, const GLchar *name, float value)
     glUniform1f(glGetUniformLocation(program, name), value);
 }
 
-void sorg::Draw(float current_time)
+void sorg::Draw()
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
