@@ -17,6 +17,26 @@ unsigned Game::GetViewportHeight()
     return viewport_height_;
 }
 
+float Game::GetRelativeTopOffset()
+{
+    return kRelativeTopOffset;
+}
+
+float Game::GetRelativeBottomOffset()
+{
+    return kRelativeBottomOffset;
+}
+
+float Game::GetRelativeLeftOffset()
+{
+    return kRelativeLeftOffset;
+}
+
+float Game::GetRelativeRightOffset()
+{
+    return kRelativeRightOffset;
+}
+
 void Game::Initialise(int viewport_width, int viewport_height,
                       int start_level_id)
 {

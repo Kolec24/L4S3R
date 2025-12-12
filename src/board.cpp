@@ -26,40 +26,43 @@ void Board::Refresh()
 {
     RemoveLasersFromBoard();
 
-    const auto &viewport_width  = Game::GetViewportWidth();
-    const auto &viewport_height = Game::GetViewportHeight();
-
     auto board_colour  = GetBoardNormalisedColour();
     auto mirror_colour = GetMirrorNormalisedColour();
 
+    // Level parameters.
+    const auto &viewport_width  = Game::GetViewportWidth();
+    const auto &viewport_height = Game::GetViewportHeight();
+
+    const auto &top_offset    = Game::GetRelativeTopOffset();
+    const auto &bottom_offset = Game::GetRelativeBottomOffset();
+    const auto &left_offset   = Game::GetRelativeLeftOffset();
+    const auto &right_offset  = Game::GetRelativeRightOffset();
+
+    const float level_width =
+        (1.0f - left_offset - right_offset) * viewport_width;
+    const float level_height =
+        (1.0f - top_offset - bottom_offset) * viewport_height;
+
     // Board frame.
-    float width_spacing = static_cast<float>(viewport_width) /
-                          (kWidth + 2 * kHorizontalHalfOffset);
-    float height_spacing = static_cast<float>(viewport_height) /
-                           (kHeight + 2 * kVerticalHalfOffset);
+    float board_middle_x = (right_offset - left_offset);
+    float board_middle_y = (bottom_offset - top_offset);
 
-    cell_size_ = std::min(width_spacing, height_spacing);
+    float width_cell_size  = level_width / (kWidth + 2);
+    float height_cell_size = level_height / (kHeight + 2);
 
-    float horizontal_spacing = viewport_width / (2 * cell_size_);
-    float vertical_spacing   = viewport_height / (2 * cell_size_);
+    cell_size_ = std::min(width_cell_size, height_cell_size);
 
-    float horizontal_skips = horizontal_spacing - 0.5f * kWidth;
-    float vertical_skips   = vertical_spacing - 0.5f * kHeight;
+    horizontal_increment_ = (2.0f * cell_size_) / viewport_width;
+    vertical_increment_   = -1 * (2.0f * cell_size_) / viewport_height;
 
-    horizontal_increment_ = 1 / horizontal_spacing;
-    vertical_increment_   = -1 / vertical_spacing;
+    float board_origin_relative_x =
+        board_middle_x - horizontal_increment_ * (kWidth / 2.0f);
+    float board_origin_relative_y =
+        board_middle_y - vertical_increment_ * (kHeight / 2.0f);
 
-    float initial_vertical_measurement =
-        -1 - vertical_skips * vertical_increment_;
-    float initial_horizontal_measurement =
-        -1 + horizontal_skips * horizontal_increment_;
-
-    board_origin_ = {
-        viewport_width / 2.0f * (1 + initial_horizontal_measurement),
-        viewport_height / 2.0f * (1 + initial_vertical_measurement)};
-
-    board_origin_relative_ = {initial_horizontal_measurement,
-                              -initial_vertical_measurement};
+    board_origin_ = {viewport_width / 2.0f * (1 + board_origin_relative_x),
+                     viewport_height / 2.0f * (1 - board_origin_relative_y)};
+    board_origin_relative_ = {board_origin_relative_x, board_origin_relative_y};
 
     std::vector<float>    vertices;
     std::vector<unsigned> indices;

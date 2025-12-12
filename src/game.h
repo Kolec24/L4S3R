@@ -14,6 +14,11 @@ class Game
     static unsigned GetViewportWidth();
     static unsigned GetViewportHeight();
 
+    static float GetRelativeTopOffset();
+    static float GetRelativeBottomOffset();
+    static float GetRelativeLeftOffset();
+    static float GetRelativeRightOffset();
+
     void Initialise(int viewport_width, int viewport_height,
                     int start_level_id);
     void Update(float current_time);
@@ -35,10 +40,16 @@ class Game
     void LoadLevel(int level_id);
 
   private:
-    static constexpr std::string kLevelsRoot         = "levels/";
-    static constexpr std::string kLevelExtension     = ".txt";
-    static constexpr int         kMaxNumberOfLevels  = 10;
-    static constexpr int         kNumberOfLaserLines = 4;
+    static constexpr std::string kLevelsRoot     = "levels/";
+    static constexpr std::string kLevelExtension = ".txt";
+
+    static constexpr int kMaxNumberOfLevels  = 10;
+    static constexpr int kNumberOfLaserLines = 4;
+
+    static constexpr float kRelativeTopOffset    = 0.2f;
+    static constexpr float kRelativeBottomOffset = 0.1f;
+    static constexpr float kRelativeLeftOffset   = 0.0f;
+    static constexpr float kRelativeRightOffset  = 0.0f;
 
     static unsigned viewport_width_;
     static unsigned viewport_height_;

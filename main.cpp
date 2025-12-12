@@ -132,7 +132,7 @@ void MouseButtonCallback(GLFWwindow *window, int button, int action, int mods)
         double x, y;
         glfwGetCursorPos(window, &x, &y);
 
-        game.OnLeftMouseButtonClicked(x, y);
+        game.OnRightMouseButtonClicked(x, y);
     }
 }
 
