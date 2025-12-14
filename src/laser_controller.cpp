@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include "depths.h"
+#include "game.h"
 
 LaserController::LaserController(const std::vector<LaserData> lasers)
 {
@@ -28,9 +29,9 @@ void LaserController::Initialise(Board *board_ptr)
     Refresh();
 }
 
-void LaserController::Update(float current_time)
+void LaserController::Update()
 {
-    sorg::SetUniform(laser_source_shader_, "uTime", current_time);
+    sorg::SetUniform(laser_source_shader_, "uTime", Game::GetCurrentTime());
 }
 
 void LaserController::Reset()

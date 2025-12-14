@@ -6,6 +6,7 @@
 
 #include "depths.h"
 
+float    Game::current_time_    = 0.0f;
 unsigned Game::viewport_width_  = 0;
 unsigned Game::viewport_height_ = 0;
 
@@ -17,6 +18,11 @@ unsigned Game::GetViewportWidth()
 unsigned Game::GetViewportHeight()
 {
     return viewport_height_;
+}
+
+float Game::GetCurrentTime()
+{
+    return current_time_;
 }
 
 float Game::GetRelativeTopOffset()
@@ -51,12 +57,27 @@ void Game::Initialise(int viewport_width, int viewport_height,
 
 void Game::Update(float current_time)
 {
-    if (levels[current_level_id].IsFinished())
+    current_time_ = current_time;
+
+    levels_[current_level_id_].Update();
+
+    if (transition_in_progress_)
     {
-        LoadNextLevel();
+        UpdateTransition();
+        return;
     }
 
-    levels[current_level_id].Update(current_time);
+    if (levels_[current_level_id_].IsFinished())
+    {
+        if (kUseTransitions)
+        {
+            StartTransitionToNextLevel();
+        }
+        else
+        {
+            LoadNextLevel();
+        }
+    }
 }
 
 void Game::SetGameViewport(int viewport_width, int viewport_height,
@@ -67,28 +88,38 @@ void Game::SetGameViewport(int viewport_width, int viewport_height,
 
     if (refresh)
     {
-        levels[current_level_id].Refresh();
+        levels_[current_level_id_].Refresh();
     }
 }
 
 void Game::OnLeftMouseButtonClicked(float x, float y)
 {
-    if (levels[current_level_id].IsFinished())
+    if (transition_in_progress_)
     {
         return;
     }
 
-    levels[current_level_id].OnLeftClicked(x, y);
+    if (levels_[current_level_id_].IsFinished())
+    {
+        return;
+    }
+
+    levels_[current_level_id_].OnLeftClicked(x, y);
 }
 
 void Game::OnRightMouseButtonClicked(float x, float y)
 {
-    if (levels[current_level_id].IsFinished())
+    if (transition_in_progress_)
     {
         return;
     }
 
-    levels[current_level_id].OnRightClicked(x, y);
+    if (levels_[current_level_id_].IsFinished())
+    {
+        return;
+    }
+
+    levels_[current_level_id_].OnRightClicked(x, y);
 }
 
 void Game::DebugLoadLevel(int level_id)
@@ -110,7 +141,7 @@ void Game::LoadLevelsFromFiles()
             break;
         }
 
-        levels.push_back(Level(new_level_data));
+        levels_.push_back(Level(new_level_data));
     }
 }
 
@@ -235,30 +266,81 @@ void Game::ParseLaserData(const std::vector<std::string> &laser_lines,
     laser_data.colour_      = current_laser_colour;
 }
 
-void Game::LoadNextLevel()
+bool Game::LoadNextLevel()
 {
-    LoadLevel(current_level_id + 1);
+    return LoadLevel(current_level_id_ + 1);
 }
 
-void Game::LoadLevel(int level_id)
+bool Game::LoadLevel(int level_id)
 {
-    if (level_id == current_level_id)
+    if (level_id == current_level_id_)
+    {
+        return false;
+    }
+
+    // Reset current level here, since we might not have another one.
+    if (current_level_id_ >= 0)
+    {
+        levels_[current_level_id_].Reset();
+    }
+
+    if (levels_.size() <= level_id)
+    {
+        return false;
+    }
+
+    current_level_id_ = level_id;
+    levels_[current_level_id_].Initialise();
+
+    return true;
+}
+
+void Game::StartTransitionToNextLevel()
+{
+    StartTransitionToLevel(current_level_id_ + 1);
+}
+
+void Game::StartTransitionToLevel(int level_id)
+{
+    transition_in_progress_    = true;
+    level_id_to_transition_to_ = level_id;
+    transition_start_time_     = GetCurrentTime();
+}
+
+void Game::UpdateTransition()
+{
+    float time_difference = GetCurrentTime() - transition_start_time_;
+    if (time_difference <= kTransitionDelay)
     {
         return;
     }
 
-    if (levels.size() <= level_id)
+    time_difference -= kTransitionDelay;
+    if (time_difference > kTransitionHalfTime)
     {
+        if (current_level_id_ != level_id_to_transition_to_)
+        {
+            bool level_changed = LoadLevel(level_id_to_transition_to_);
+            if (!level_changed)
+            {
+                FinishTransition();
+            }
+        }
+    }
+
+    if (time_difference > 2 * kTransitionHalfTime)
+    {
+        FinishTransition();
         return;
     }
 
-    if (current_level_id >= 0)
-    {
-        levels[current_level_id].Reset();
-    }
+    float value = time_difference / kTransitionHalfTime;
+    sorg::SetUniform(level_transition_shader_, "uVerticalLimit", value);
+}
 
-    current_level_id = level_id;
-    levels[current_level_id].Initialise();
+void Game::FinishTransition()
+{
+    transition_in_progress_ = false;
 }
 
 void Game::SetupOverlayShaders()
@@ -268,8 +350,8 @@ void Game::SetupOverlayShaders()
         sorg::SetupShaderProgram("shaders/white.vs", "shaders/white.fs");
     bottom_shader_ =
         sorg::SetupShaderProgram("shaders/white.vs", "shaders/white.fs");
-    level_transition_shader_ =
-        sorg::SetupShaderProgram("shaders/white.vs", "shaders/white.fs");
+    level_transition_shader_ = sorg::SetupShaderProgram(
+        "shaders/transition.vs", "shaders/transition.fs");
 
     // Typical quad indices.
     std::vector<unsigned> indices = {0, 1, 2, 1, 3, 2};
@@ -334,8 +416,37 @@ void Game::SetupOverlayShaders()
     bottom_vertices.push_back(1.0f);
     bottom_vertices.push_back(1.0f);
 
+    // Transition.
+    level_vertices.push_back(level_left);
+    level_vertices.push_back(level_top);
+    level_vertices.push_back(depth::kOverlayDepth);
+    level_vertices.push_back(0.0f);
+    level_vertices.push_back(0.0f);
+
+    level_vertices.push_back(level_right);
+    level_vertices.push_back(level_top);
+    level_vertices.push_back(depth::kOverlayDepth);
+    level_vertices.push_back(1.0f);
+    level_vertices.push_back(0.0f);
+
+    level_vertices.push_back(level_left);
+    level_vertices.push_back(level_bottom);
+    level_vertices.push_back(depth::kOverlayDepth);
+    level_vertices.push_back(0.0f);
+    level_vertices.push_back(1.0f);
+
+    level_vertices.push_back(level_right);
+    level_vertices.push_back(level_bottom);
+    level_vertices.push_back(depth::kOverlayDepth);
+    level_vertices.push_back(1.0f);
+    level_vertices.push_back(1.0f);
+
     // Render setup.
     sorg::SetupTriangles(top_shader_, top_vertices, indices, indices.size());
     sorg::SetupTriangles(bottom_shader_, bottom_vertices, indices,
                          indices.size());
+    sorg::SetupTriangles(level_transition_shader_, level_vertices, indices,
+                         indices.size());
+
+    sorg::SetUniform(level_transition_shader_, "uVerticalLimit", -1.0f);
 }

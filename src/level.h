@@ -20,7 +20,7 @@ class Level
     Level(LevelData data);
 
     void Initialise();
-    void Update(float current_time);
+    void Update();
     void Reset();
     void Refresh();
 

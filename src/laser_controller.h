@@ -54,7 +54,7 @@ class LaserController
     LaserController(const std::vector<LaserData> lasers);
 
     void Initialise(Board *board_ptr);
-    void Update(float current_time);
+    void Update();
     void Reset();
     void Refresh();
 

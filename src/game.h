@@ -14,6 +14,8 @@ class Game
     static unsigned GetViewportWidth();
     static unsigned GetViewportHeight();
 
+    static float GetCurrentTime();
+
     static float GetRelativeTopOffset();
     static float GetRelativeBottomOffset();
     static float GetRelativeLeftOffset();
@@ -36,12 +38,19 @@ class Game
     void ParseLaserData(const std::vector<std::string> &laser_lines,
                         LaserData &laser_data, const char *path);
 
-    void LoadNextLevel();
-    void LoadLevel(int level_id);
+    bool LoadNextLevel();
+    bool LoadLevel(int level_id);
+
+    void StartTransitionToNextLevel();
+    void StartTransitionToLevel(int level_id);
+    void UpdateTransition();
+    void FinishTransition();
 
     void SetupOverlayShaders();
 
   private:
+    static float current_time_;
+
     static constexpr std::string kLevelsRoot     = "levels/";
     static constexpr std::string kLevelExtension = ".txt";
 
@@ -60,7 +69,17 @@ class Game
     unsigned bottom_shader_           = 0;
     unsigned level_transition_shader_ = 0;
 
-    std::vector<Level> levels;
-    int                current_level_id = -1;
+    // Levels.
+    std::vector<Level> levels_;
+    int                current_level_id_          = -1;
+    int                level_id_to_transition_to_ = -1;
+
+    // Transition.
+    const float kTransitionHalfTime = 1.0f;
+    const float kTransitionDelay    = 1.0f;
+    const bool  kUseTransitions     = true;
+
+    float transition_start_time_  = 0.0f;
+    bool  transition_in_progress_ = false;
 };
 #endif

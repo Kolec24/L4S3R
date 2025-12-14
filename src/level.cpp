@@ -12,9 +12,9 @@ void Level::Initialise()
     laser_controller_.Initialise(&board_);
 }
 
-void Level::Update(float current_time)
+void Level::Update()
 {
-    laser_controller_.Update(current_time);
+    laser_controller_.Update();
 }
 
 void Level::Reset()
