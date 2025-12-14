@@ -288,35 +288,51 @@ void Game::SetupOverlayShaders()
     top_vertices.push_back(level_left);
     top_vertices.push_back(1.0f);
     top_vertices.push_back(depth::kOverlayDepth);
+    top_vertices.push_back(0.0f);
+    top_vertices.push_back(0.0f);
 
     top_vertices.push_back(level_right);
     top_vertices.push_back(1.0f);
     top_vertices.push_back(depth::kOverlayDepth);
+    top_vertices.push_back(1.0f);
+    top_vertices.push_back(0.0f);
 
     top_vertices.push_back(level_left);
     top_vertices.push_back(level_top);
     top_vertices.push_back(depth::kOverlayDepth);
+    top_vertices.push_back(0.0f);
+    top_vertices.push_back(1.0f);
 
     top_vertices.push_back(level_right);
     top_vertices.push_back(level_top);
     top_vertices.push_back(depth::kOverlayDepth);
+    top_vertices.push_back(1.0f);
+    top_vertices.push_back(1.0f);
 
     // Bottom.
     bottom_vertices.push_back(level_left);
     bottom_vertices.push_back(level_bottom);
     bottom_vertices.push_back(depth::kOverlayDepth);
+    bottom_vertices.push_back(0.0f);
+    bottom_vertices.push_back(0.0f);
 
     bottom_vertices.push_back(level_right);
     bottom_vertices.push_back(level_bottom);
     bottom_vertices.push_back(depth::kOverlayDepth);
+    bottom_vertices.push_back(1.0f);
+    bottom_vertices.push_back(0.0f);
 
     bottom_vertices.push_back(level_left);
     bottom_vertices.push_back(-1.0f);
     bottom_vertices.push_back(depth::kOverlayDepth);
+    bottom_vertices.push_back(0.0f);
+    bottom_vertices.push_back(1.0f);
 
     bottom_vertices.push_back(level_right);
     bottom_vertices.push_back(-1.0f);
     bottom_vertices.push_back(depth::kOverlayDepth);
+    bottom_vertices.push_back(1.0f);
+    bottom_vertices.push_back(1.0f);
 
     // Render setup.
     sorg::SetupTriangles(top_shader_, top_vertices, indices, indices.size());

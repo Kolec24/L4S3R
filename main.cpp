@@ -31,8 +31,7 @@ int main()
         return -1;
     }
 
-    game.Initialise(kStartViewportWidth, kStartViewportHeight,
-                    kStartViewportHeight);
+    game.Initialise(kStartViewportWidth, kStartViewportHeight, kStartLevelId);
 
     while (!glfwWindowShouldClose(window))
     {
@@ -77,8 +76,8 @@ bool Initialise(const std::string &name, const int width, const int height)
 
     glEnable(GL_DEPTH_TEST);
 
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glViewport(0, 0, width, height);
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);

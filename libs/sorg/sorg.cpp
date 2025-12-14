@@ -37,6 +37,11 @@ GLuint sorg::SetupShaderProgram(const GLchar *vertexPath,
 
 void sorg::SetupShaderObjects(GLuint program)
 {
+    // TODO: This is risky, as GL_ACTIVE_ATTRIBUTES returns the number of
+    // properly used attributes - they must contribute to the final pipeline
+    // output.
+    // THINK ABOUT A BETTER SOLUTION!
+
     // Gather attribute information.
     GLint attribute_count;
     glGetProgramiv(program, GL_ACTIVE_ATTRIBUTES, &attribute_count);
